@@ -5,12 +5,25 @@ from reportlab.lib.units import inch
 from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.cidfonts import UnicodeCIDFont
 from reportlab.pdfbase.ttfonts import TTFont
+from googletrans import Translator, LANGUAGES  # For translation
+
+def translate_to_chinese(translator, text):
+    """Translate English text to Simplified Chinese."""
+    try:
+        # Translate to 'zh-cn' (Simplified Chinese)
+        result = translator.translate(text, dest='zh-cn')
+        return result.text
+    except Exception as e:
+        print(f"Translation error for '{text}': {e}")
+        return "Translation failed"  # Fallback
 
 
 def create_vocabulary_table(data):
     """Create a table for the PDF from vocabulary data."""
     table_data = [['Vocabulary (Part of Speech)', 'Chinese Meaning']]
-    for vocab, pos, chinese in data:
+    for vocab, pos in data:
+        translator = Translator()
+        chinese = translate_to_chinese(translator, vocab)
         table_data.append([f"{vocab} ({pos})", chinese])
     return table_data
 
@@ -52,10 +65,11 @@ def generate_vocabulary_pdf(filename, vocab_data):
 def main():
     # Sample vocabulary data: (vocabulary, part of speech, Chinese meaning)
     vocab_data = [
-        ("apple", "noun", "蘋果"),
-        ("run", "verb", "跑"),
-        ("beautiful", "adjective", "美麗"),
-        ("quickly", "adverb", "快速地"),
+        ("accountable", "adj"),
+        ("vandalism", "noun"),
+        ("beautiful", "adjective"),
+        ("quickly", "adverb"),
+        ("fertiliser", "noun"),
     ]
 
     # Generate PDF
