@@ -1,11 +1,27 @@
 from reportlab.lib import colors
 from reportlab.lib.pagesizes import letter
-from reportlab.platypus import SimpleDocTemplate, Table, TableStyle
+from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, HRFlowable
 from reportlab.lib.units import inch
+from reportlab.lib.styles import getSampleStyleSheet
 from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.cidfonts import UnicodeCIDFont
 from reportlab.pdfbase.ttfonts import TTFont
 from googletrans import Translator, LANGUAGES  # For translation
+from datetime import datetime
+
+def week_of_month(dt):
+    """ Returns the week of the month for the specified date."""
+    # Get the day of the week for the first day of the month (Monday = 0, Sunday = 6)
+    first_day_of_month = dt.replace(day=1)
+    # Get the ISO week number for the first day of the month
+    first_day_iso_week = first_day_of_month.isocalendar()[1]
+    # Get the ISO week number for the target date
+    target_iso_week = dt.isocalendar()[1]
+
+    # Calculate the week number within the month
+    # Add 1 because the week numbers are 1-indexed
+    week_number_of_month = target_iso_week - first_day_iso_week + 1
+    return week_number_of_month
 
 def translate_to_chinese(translator, text):
     """Translate English text to Simplified Chinese."""
@@ -30,16 +46,17 @@ def create_vocabulary_table(data):
 def style_vocabulary_table(table, chinese_font):
     """Apply styling to the vocabulary table with Chinese font support."""
     return TableStyle([
-        ('BACKGROUND', (0, 0), (-1, 0), colors.grey),  # Header background
-        ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),  # Header text color
-        ('ALIGN', (0, 0), (-1, -1), 'CENTER'),  # Center all text
         ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),  # Bold header (English)
-        ('FONTSIZE', (0, 0), (-1, 0), 13),  # Header font size
+        ('FONTSIZE', (0, 0), (-1, 0), 14),  # Header font size
         ('FONTNAME', (0, 1), (0, -1), 'Helvetica'),  # English column (vocab)
         ('FONTNAME', (1, 1), (1, -1), chinese_font),  # Chinese column
-        ('FONTSIZE', (0, 1), (-1, -1), 12),  # Body font size
+        ('FONTSIZE', (0, 1), (-1, -1), 13),  # Body font size
         ('GRID', (0, 0), (-1, -1), 1, colors.black),  # Table grid
         ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),  # Vertical alignment
+        ('LEFTPADDING', (0, 0), (-1, -1), 10),  # Left padding for all cells
+        ('RIGHTPADDING', (0, 0), (-1, -1), 10),  # Right padding for all cells
+        ('TOPPADDING', (0, 0), (-1, -1), 8),  # Top padding for all cells
+        ('BOTTOMPADDING', (0, 0), (-1, -1), 8),  # Bottom padding for all cells
     ])
 
 def generate_vocabulary_pdf(filename, vocab_data):
@@ -49,6 +66,17 @@ def generate_vocabulary_pdf(filename, vocab_data):
     elements = []
     chinese_font = 'STSong-Light' # from Adobe's Asian Language Packs
     pdfmetrics.registerFont(UnicodeCIDFont(chinese_font))
+
+    # Title
+    styles = getSampleStyleSheet()
+    title_style = styles['Title']
+    title_style.alignment = 0
+    title_style.fontsize = 16
+    dt = datetime.now()
+    title_text = f'{dt.strftime("%b")} {dt.year} Week {week_of_month(dt)}'
+    title = Paragraph(title_text, title_style)
+    elements.append(title)
+    elements.append(HRFlowable(color=colors.black, thickness=2, spaceAfter=12, hAlign="LEFT"))
 
     # Create and style table
     table_data = create_vocabulary_table(vocab_data)
