@@ -5,8 +5,7 @@ from reportlab.lib.units import inch
 from reportlab.lib.styles import getSampleStyleSheet
 from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.cidfonts import UnicodeCIDFont
-from reportlab.pdfbase.ttfonts import TTFont
-from googletrans import Translator, LANGUAGES  # For translation
+from googletrans import Translator  # For translation
 from datetime import datetime
 
 def week_of_month(dt):
@@ -27,7 +26,7 @@ def translate_to_chinese(translator, text):
     """Translate English text to Simplified Chinese."""
     try:
         # Translate to 'zh-cn' (Simplified Chinese)
-        result = translator.translate(text, dest='zh-cn')
+        result = translator.translate(text, dest='zh-tw')
         return result.text
     except Exception as e:
         print(f"Translation error for '{text}': {e}")
