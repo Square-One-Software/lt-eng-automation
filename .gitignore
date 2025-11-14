@@ -1,3 +1,5 @@
 .venv
 *.pdf
 *.csv
+
+/__pycache__
