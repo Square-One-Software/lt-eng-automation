@@ -2,11 +2,14 @@ from reportlab.lib import colors
 from reportlab.lib.pagesizes import letter
 from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, HRFlowable
 from reportlab.lib.units import inch
+from reportlab.pdfbase.ttfonts import TTFont
 from reportlab.lib.styles import getSampleStyleSheet
 from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.cidfonts import UnicodeCIDFont
 from googletrans import Translator  # For translation
 from datetime import datetime
+from utils import parse_vocab_file
+import argparse
 
 def week_of_month(dt):
     """ Returns the week of the month for the specified date."""
@@ -63,6 +66,7 @@ def generate_vocabulary_pdf(filename, vocab_data):
     # Create PDF document
     doc = SimpleDocTemplate(filename, pagesize=letter)
     elements = []
+    
     chinese_font = 'STSong-Light' # from Adobe's Asian Language Packs
     pdfmetrics.registerFont(UnicodeCIDFont(chinese_font))
 
@@ -90,17 +94,18 @@ def generate_vocabulary_pdf(filename, vocab_data):
     print(f"PDF generated: {filename}")
 
 def main():
-    # Sample vocabulary data: (vocabulary, part of speech, Chinese meaning)
-    vocab_data = [
-        ("accountable", "adj"),
-        ("vandalism", "noun"),
-        ("beautiful", "adjective"),
-        ("quickly", "adverb"),
-        ("fertiliser", "noun"),
-    ]
+    parser = argparse.ArgumentParser(prog="Vocabulary Generator", description="Generate a vocabulary list PDF.")
+    parser.add_argument('-o', '--output', type=str, default="vocabulary_list.pdf",
+                        help="Output PDF filename (default: vocabulary_list.pdf)")
+    parser.add_argument('-f', '--file', type=str, help="Input vocabulary csv file name (vocab.csv)", required=True)
+    # Parse arguments
+    args = parser.parse_args()
+    output_filename = args.output
+    csv_filename = args.file
 
+    vocab_data = parse_vocab_file(csv_filename)
+    
     # Generate PDF
-    output_filename = "vocabulary_list.pdf"
     generate_vocabulary_pdf(output_filename, vocab_data)
 
 if __name__ == "__main__":
