@@ -21,6 +21,7 @@ from telegram.ext import (
     MessageHandler,
     filters,
 )
+from pdf_utils import generate_vocabulary_pdf
 
 load_dotenv()
 TG_BOT_TOKEN = getenv("TG_BOT_TOKEN")
