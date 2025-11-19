@@ -11,7 +11,7 @@ bot.
 """
 import logging
 from dotenv import load_dotenv
-from os import getenv 
+from os import getenv, remove
 from telegram import  Update
 from telegram.ext import (
     Application,
@@ -64,9 +64,7 @@ async def receive_name(update: Update, context: ContextTypes.DEFAULT_TYPE) -> in
 
 async def receive_list(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     text = update.message.text.strip()
-    user_id = update.effective_user.id
-
-    # ---- 1. Parse the input string ----
+    # ----  Parse the input string ----
     try:
         pairs = [item.strip().split(",") for item in text.split(";")]
         vocab_data = []
@@ -84,28 +82,24 @@ async def receive_list(update: Update, context: ContextTypes.DEFAULT_TYPE) -> in
         )
         return WAITING_FOR_LIST
 
-    # ---- 3. Generate the PDF (reuse YOUR existing function) ----
+    # ---- Generate the PDF (reuse YOUR existing function) ----
     output_filename = f"review_notes_{context.user_data['student_name']}.pdf"
     try:
-        # ←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←
-        # CALL YOUR EXISTING FUNCTION HERE
         generate_vocabulary_pdf(output_filename, vocab_data)
-        # ↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑
+        # ---- Send the PDF back to the user ----
+        with open(output_filename, "rb") as pdf_file:
+            await update.message.reply_document(
+                document=pdf_file,
+                filename=f"{output_filename}",
+                caption="Here’s your vocabulary review notes!",
+            )
+        await update.message.reply_text("Done! Send /vocab again anytime.")
     except Exception as e:
         logger.error(e, exc_info=True)
-        await update.message.reply_text("Something went wrong while creating the PDF.")
+        await update.message.reply_text("Something went wrong while creating the PDF >.< \n\n Try /vocab again later")
+    finally:
+        remove(output_filename)
         return ConversationHandler.END
-
-    # ---- 4. Send the PDF back to the user ----
-    with open(output_filename, "rb") as pdf_file:
-        await update.message.reply_document(
-            document=pdf_file,
-            filename=f"{output_filename}",
-            caption="Here’s your vocabulary review notes!",
-        )
-
-    await update.message.reply_text("Done! Send /vocab again anytime.")
-    return ConversationHandler.END
 
 
 async def cancel(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
