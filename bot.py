@@ -35,20 +35,32 @@ logging.getLogger("httpx").setLevel(logging.WARNING)
 
 logger = logging.getLogger(__name__)
 
-WAITING_FOR_LIST = 0
+ASKING_FOR_NAME, WAITING_FOR_LIST = range(2)
 
 
 async def vocab_start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     await update.message.reply_text(
-        "Hi! Send me the vocabulary list in this exact format:\n\n"
+        "Hi! 1) Send me the name of the student first ^.^ \n\n"
+        "Send /cancel to stop ^.^",
+    )
+    return ASKING_FOR_NAME 
+
+
+async def receive_name(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+    text = update.message.text.strip()
+    context.user_data["student_name"] = text
+
+    await update.message.reply_text(
+        f"Got it! This note is for {text} n.n \n\n" 
+        "Now send me the vocabulary list in this exact format:\n\n"
         "`word1,pos;word2,pos;word3,pos`\n\n"
         "Example:\n"
         "`suspend,v;mourn,v;tempest,n;infuriate,v;escalate,v;belligerent,adj;spat,n;allies,n`\n\n"
-        "Send /cancel to stop.",
+        "Send /cancel to stop ^.^",
         parse_mode="Markdown",
-    )
-    return WAITING_FOR_LIST
+    ) 
 
+    return WAITING_FOR_LIST
 
 async def receive_list(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     text = update.message.text.strip()
@@ -64,7 +76,7 @@ async def receive_list(update: Update, context: ContextTypes.DEFAULT_TYPE) -> in
             # Normalise POS (v → verb, n → noun, adj → adjective, adv → adverb)
             pos_map = {"v": "verb", "n": "noun", "adj": "adjective", "adv": "adverb"}
             pos = pos_map.get(pos_raw.lower(), pos_raw)  # fallback to original if unknown
-            vocab_data.append((word.lower(), pos, ""))   # Chinese meaning will be added later
+            vocab_data.append((word.lower(), pos))   # Chinese meaning will be added later
     except Exception as e:
         await update.message.reply_text(
             f"Invalid format. Please try again.\nError: {e}\n\n"
@@ -72,13 +84,8 @@ async def receive_list(update: Update, context: ContextTypes.DEFAULT_TYPE) -> in
         )
         return WAITING_FOR_LIST
 
-    # ---- 2. OPTIONAL: auto-translate to Chinese (reuse your old function) ----
-    # If you still want auto-translation, uncomment and adapt:
-    # from generate_vocab_pdf import create_vocabulary_data
-    # vocab_data = create_vocabulary_data([(w, p) for w, p, _ in vocab_data])
-
     # ---- 3. Generate the PDF (reuse YOUR existing function) ----
-    output_filename = f"review_notes_{user_id}.pdf"
+    output_filename = f"review_notes_{context.user_data['student_name']}.pdf"
     try:
         # ←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←
         # CALL YOUR EXISTING FUNCTION HERE
@@ -93,7 +100,7 @@ async def receive_list(update: Update, context: ContextTypes.DEFAULT_TYPE) -> in
     with open(output_filename, "rb") as pdf_file:
         await update.message.reply_document(
             document=pdf_file,
-            filename=f"Oct_2025_Week_1_Review_Notes.pdf",
+            filename=f"{output_filename}.pdf",
             caption="Here’s your vocabulary review notes!",
         )
 
@@ -112,6 +119,7 @@ def main() -> None:
     conv_handler = ConversationHandler(
         entry_points=[CommandHandler("vocab", vocab_start)],
         states={
+            ASKING_FOR_NAME: [MessageHandler(filters.TEXT & ~filters.COMMAND, receive_name)],
             WAITING_FOR_LIST: [MessageHandler(filters.TEXT & ~filters.COMMAND, receive_list)],
         },
         fallbacks=[CommandHandler("cancel", cancel)],
