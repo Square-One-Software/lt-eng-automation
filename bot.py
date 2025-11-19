@@ -100,7 +100,7 @@ async def receive_list(update: Update, context: ContextTypes.DEFAULT_TYPE) -> in
     with open(output_filename, "rb") as pdf_file:
         await update.message.reply_document(
             document=pdf_file,
-            filename=f"{output_filename}.pdf",
+            filename=f"{output_filename}",
             caption="Here’s your vocabulary review notes!",
         )
 
