@@ -24,7 +24,7 @@ def style_vocabulary_table(chinese_font):
         ('BOTTOMPADDING', (0, 0), (-1, -1), 8),  # Bottom padding for all cells
     ])
 
-def generate_vocabulary_pdf(filename, vocab_data):
+async def generate_vocabulary_pdf(filename, vocab_data):
     """Generate a PDF with a vocabulary table."""
     # Create PDF document
     doc = SimpleDocTemplate(filename, pagesize=letter)
@@ -45,7 +45,7 @@ def generate_vocabulary_pdf(filename, vocab_data):
     elements.append(HRFlowable(color=colors.black, thickness=2, spaceAfter=12, hAlign="LEFT"))
 
     # Create and style table
-    table_data = create_vocabulary_table(vocab_data)
+    table_data = await create_vocabulary_table(vocab_data)
     table = Table(table_data, colWidths=[3 * inch, 3 * inch])
     table.setStyle(style_vocabulary_table(chinese_font))
 
