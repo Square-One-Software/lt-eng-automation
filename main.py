@@ -1,6 +1,6 @@
 from utils import parse_vocab_file 
 from pdf_utils import generate_vocabulary_pdf
-import argparse
+import argparse, asyncio
 
 
 def main():
@@ -16,7 +16,7 @@ def main():
     vocab_data = parse_vocab_file(csv_filename)
     
     # Generate PDF
-    generate_vocabulary_pdf(output_filename, vocab_data)
+    asyncio.run(generate_vocabulary_pdf(output_filename, vocab_data))
 
 if __name__ == "__main__":
     main()
