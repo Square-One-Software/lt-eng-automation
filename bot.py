@@ -12,7 +12,7 @@ bot.
 import logging
 from dotenv import load_dotenv
 from os import getenv, remove
-from telegram import  Update
+from telegram import  Update 
 from telegram.ext import (
     Application,
     CommandHandler,
@@ -40,7 +40,7 @@ ASKING_FOR_NAME, WAITING_FOR_LIST = range(2)
 
 async def vocab_start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     await update.message.reply_text(
-        "Hi! 1) Send me the name of the student first ^.^ \n\n"
+        "Hi! 1) Send me the name of the student first~\n\n"
         "Send /cancel to stop ^.^",
     )
     return ASKING_FOR_NAME 
@@ -121,9 +121,12 @@ def main() -> None:
 
     app.add_handler(conv_handler)
 
-    # Optional: simple /start command
     app.add_handler(CommandHandler("start", lambda u, c: u.message.reply_text(
-        "Hi! Use /vocab to generate a review notes PDF."
+        "Hi! Molly is here...hehe! Use /vocab to generate a review notes PDF."
+    )))
+    
+    app.add_handler(CommandHandler("random", lambda u, c: u.message.reply_text(
+        "Let me tell you something random haha"
     )))
 
     print("Bot is running…")
