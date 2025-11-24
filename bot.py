@@ -103,7 +103,7 @@ async def cancel(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
 
 async def random_joke(update: Update, _: ContextTypes.DEFAULT_TYPE) -> int:
     joke = requests.get("http://www.official-joke-api.appspot.com/random_joke").json()
-    await update.message.reply_text(f"Let me tell you something random hehe... \n\n {joke['setup']} \n {joke['punchline']} \n\n Have a nice day!")
+    await update.message.reply_text(f"Let me tell you something random hehe...\n\n{joke['setup']}\n{joke['punchline']}\n\nHave a nice day!")
     return ConversationHandler.END
 
 def main() -> None:
