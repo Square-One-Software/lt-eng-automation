@@ -1,15 +1,11 @@
 """
-First, a few callback functions are defined. Then, those functions are passed to
-the Application and registered at their respective places.
-Then, the bot is started and runs until we press Ctrl-C on the command line.
-
 Usage:
 Example of a bot-user conversation using ConversationHandler.
 Send /start to initiate the conversation.
 Press Ctrl-C on the command line or send a signal to the process to stop the
 bot.
 """
-import logging
+import logging, requests
 from dotenv import load_dotenv
 from os import getenv, remove
 from telegram import  Update 
@@ -37,8 +33,7 @@ logger = logging.getLogger(__name__)
 
 ASKING_FOR_NAME, WAITING_FOR_LIST = range(2)
 
-
-async def vocab_start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+async def vocab_start(update: Update, _: ContextTypes.DEFAULT_TYPE) -> int:
     await update.message.reply_text(
         "Hi! 1) Send me the name of the student first~\n\n"
         "Send /cancel to stop ^.^",
@@ -106,6 +101,10 @@ async def cancel(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     await update.message.reply_text("Cancelled.")
     return ConversationHandler.END
 
+async def random_joke(update: Update, _: ContextTypes.DEFAULT_TYPE) -> int:
+    joke = requests.get("http://www.official-joke-api.appspot.com/random_joke").json()
+    await update.message.reply_text(f"Let me tell you something random hehe... \n\n {joke['setup']} \n {joke['punchline']} \n\n Have a nice day!")
+    return ConversationHandler.END
 
 def main() -> None:
     app = Application.builder().token(TG_BOT_TOKEN).build()
@@ -122,12 +121,10 @@ def main() -> None:
     app.add_handler(conv_handler)
 
     app.add_handler(CommandHandler("start", lambda u, c: u.message.reply_text(
-        "Hi! Molly is here...hehe! Use /vocab to generate a review notes PDF."
+        "Hi! Molly is here! Use /vocab to generate a review notes PDF."
     )))
     
-    app.add_handler(CommandHandler("random", lambda u, c: u.message.reply_text(
-        "Let me tell you something random haha"
-    )))
+    app.add_handler(CommandHandler("random", random_joke))
 
     print("Bot is running…")
     app.run_polling(allowed_updates=Update.ALL_TYPES)
