@@ -10,6 +10,16 @@ def parse_vocab_file(file):
     except IOError as error:
         print(error)
 
+def parse_tuition_file(file):
+    try:
+        course_desc, student_name = file.split(".")[0].split("-") 
+        with open(file, "r") as f:
+            reader = csv.DictReader(f)
+            tuition_data = [row for row in reader] 
+        return tuition_data, course_desc, student_name
+    except IOError as error:
+        print(error)
+
 def week_of_month(dt):
     """ Returns the week of the month for the specified date."""
     # Get the day of the week for the first day of the month (Monday = 0, Sunday = 6)
