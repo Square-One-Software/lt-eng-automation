@@ -9,16 +9,15 @@ from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, 
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.lib.enums import TA_CENTER, TA_LEFT
 from functools import reduce
+from utils import parse_tuition_file
 import os
 
-# ------------------------------------------------------------------
-# Main function — call this one
-# ------------------------------------------------------------------
 def generate_tuition_debit_note(
     filename: str,
     student_name: str,
     month: str,                     # e.g. "11月" or "9月"
     lessons: list,                  # List of dicts → see example below
+    lesson_desc: str,
     notes: str = None               # Optional notes (e.g. payment received message)
 ) -> None:
     """
@@ -122,15 +121,15 @@ def generate_tuition_debit_note(
     ]
     for lesson in lessons:
         row = [
-            f"{lesson['desc']} ({lesson['date']}) - {lesson['amount']} HKD",
+            f"{lesson_desc} ({lesson['date']}) - {lesson['amount']} HKD",
             lesson['payment'],
             lesson['status']
         ]
         table_data.append(row)
 
     # Add total row with proper spacing
-    total = reduce(lambda curr, next: {"amount": int(curr["amount"]) + int(next["amount"])}, lessons)
-    table_data.append(["Total 總數", "", f"${total['amount']:,} HKD"])
+    total = reduce(lambda curr, next: curr + next, [int(lesson["amount"]) for lesson in lessons])
+    table_data.append(["Total 總數", "", f"${total:,} HKD"])
 
     # 6. Table styling with fixed borders
     table = Table(table_data, colWidths=[3.8*inch, 1.3*inch, 1.3*inch])
@@ -195,21 +194,13 @@ def generate_tuition_debit_note(
 
 
 if __name__ == "__main__":
-    lessons_nov = [
-        {"date": "2025-11-01", "desc": "1 對 1 初中英文面授課", "amount": "375", "payment": "Pending 未付", "status": "Scheduled 已安排"},
-        {"date": "2025-11-05", "desc": "1 對 1 初中英文面授課", "amount": "375", "payment": "Pending 未付", "status": "Scheduled 已安排"},
-        {"date": "2025-11-08", "desc": "1 對 1 初中英文面授課", "amount": "375", "payment": "Pending 未付", "status": "Scheduled 已安排"},
-        {"date": "2025-11-12", "desc": "1 對 1 初中英文面授課", "amount": "375", "payment": "Pending 未付", "status": "Scheduled 已安排"},
-        {"date": "2025-11-15", "desc": "1 對 1 初中英文面授課", "amount": "375", "payment": "Pending 未付", "status": "Scheduled 已安排"},
-        {"date": "2025-11-19", "desc": "1 對 1 初中英文面授課", "amount": "375", "payment": "Pending 未付", "status": "Scheduled 已安排"},
-        {"date": "2025-11-22", "desc": "1 對 1 初中英文面授課", "amount": "375", "payment": "Pending 未付", "status": "Scheduled 已安排"},
-        {"date": "2025-11-26", "desc": "1 對 1 初中英文面授課", "amount": "375", "payment": "Pending 未付", "status": "Scheduled 已安排"},
-        {"date": "2025-11-29", "desc": "1 對 1 初中英文面授課", "amount": "375", "payment": "Pending 未付", "status": "Scheduled 已安排"},
-    ]
+    lesson_data, course_desc, student_name = parse_tuition_file("1 對 1 初中英文面授課-Emma.csv")
+    month = 11
     generate_tuition_debit_note(
-        filename="Gary_Nov_2025.pdf",
-        student_name="Gary",
-        month="11月",
-        lessons=lessons_nov,
-        notes="Payment received on 2025-12-01 via bank transfer. 已於2025年12月1日通過銀行轉賬收到款項。"
+        filename=f"{student_name}_{month}_2025.pdf",
+        student_name=student_name,
+        month=f"{month}月",
+        lessons=lesson_data,
+        lesson_desc=course_desc,
+        notes=""
     )
