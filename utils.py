@@ -10,6 +10,10 @@ def parse_vocab_file(file):
     except IOError as error:
         print(error)
 
+def month_conversion(m: int):
+   import calendar
+   return calendar.month_abbr[m]
+
 def parse_tuition_file(file):
     try:
         course_desc, student_name = file.split(".")[0].split("-") 
