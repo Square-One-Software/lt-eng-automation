@@ -10,9 +10,11 @@ def parse_vocab_file(file):
     except IOError as error:
         print(error)
 
-def month_conversion(m: int):
+def get_month_and_month_name():
    import calendar
-   return calendar.month_abbr[m]
+   from datetime import date
+   m = date.today().month
+   return m, calendar.month_abbr[m]
 
 def parse_tuition_file(file):
     TUITION_SCHEMA = {
