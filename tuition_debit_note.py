@@ -9,7 +9,6 @@ from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, 
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.lib.enums import TA_CENTER, TA_LEFT
 from functools import reduce
-from utils import parse_tuition_file, month_conversion
 import os
 
 def set_tuition_debit_note_style(chinese_font):
@@ -186,15 +185,3 @@ def generate_tuition_debit_note(
     print(f"Tuition debit note generated: {filename}")
 
 
-if __name__ == "__main__":
-    lesson_data, course_desc, student_name = parse_tuition_file("1 對 1 初中英文面授課-Emma.csv")
-    month = 11
-    month_name = month_conversion(month)
-    generate_tuition_debit_note(
-        filename=f"{student_name}_{month_name}_2025.pdf",
-        student_name=student_name,
-        month=f"{month}月",
-        lessons=lesson_data,
-        lesson_desc=course_desc,
-        notes=""
-    )
