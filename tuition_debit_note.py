@@ -9,53 +9,10 @@ from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, 
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.lib.enums import TA_CENTER, TA_LEFT
 from functools import reduce
-from utils import parse_tuition_file
+from utils import parse_tuition_file, month_conversion
 import os
 
-def generate_tuition_debit_note(
-    filename: str,
-    student_name: str,
-    month: str,                     # e.g. "11月" or "9月"
-    lessons: list,                  # List of dicts → see example below
-    lesson_desc: str,
-    notes: str = None               # Optional notes (e.g. payment received message)
-) -> None:
-    """
-    Generates a Tuition Fee Debit Note that looks identical to your PDF.
-    
-    Example usage:
-        lessons = [
-            {"date": "2025-11-01", "desc": "1 對 1 初中英文面授課", "amount": "375 HKD", "payment": "Pending 未付", "status": "Scheduled 已安排"},
-            # ... more lessons
-        ]
-        generate_tuition_debit_note("Gary_Nov_2025.pdf", "Gary", "11月", lessons, "$ 3,375 HKD")
-    """
-    
-    # Register Chinese font - using a better approach
-    # Try multiple Chinese font options
-    chinese_font = None
-    try:
-        # Option 1: Try to use a TrueType font if available (best quality)
-        # You can download NotoSansCJK or other Chinese fonts
-        # For example: https://github.com/googlefonts/noto-cjk/releases
-        if os.path.exists('/System/Library/Fonts/STHeiti Medium.ttc'):  # macOS
-            pdfmetrics.registerFont(TTFont('ChineseFont', '/System/Library/Fonts/STHeiti Medium.ttc'))
-            chinese_font = 'ChineseFont'
-        elif os.path.exists('C:\\Windows\\Fonts\\msyh.ttc'):  # Windows (Microsoft YaHei)
-            pdfmetrics.registerFont(TTFont('ChineseFont', 'C:\\Windows\\Fonts\\msyh.ttc'))
-            chinese_font = 'ChineseFont'
-        else:
-            # Fallback to CID font
-            chinese_font = 'STSong-Light'
-            pdfmetrics.registerFont(UnicodeCIDFont(chinese_font))
-    except:
-        # Final fallback
-        chinese_font = 'STSong-Light'
-        pdfmetrics.registerFont(UnicodeCIDFont(chinese_font))
-    
-    doc = SimpleDocTemplate(filename, pagesize=A4, topMargin=0.8*inch, bottomMargin=0.8*inch)
-    elements = []
-
+def set_tuition_debit_note_style(chinese_font):
     styles = getSampleStyleSheet()
     
     # Updated styles with proper font settings
@@ -73,6 +30,7 @@ def generate_tuition_debit_note(
         fontName='Helvetica-Bold',  # English title in English font
         fontSize=16,
         alignment=TA_CENTER,
+        wordWrap='CJK',
         spaceAfter=10
     ))
 
@@ -82,16 +40,83 @@ def generate_tuition_debit_note(
         fontSize=14,
         leading=12,
         alignment=TA_CENTER,
+        wordWrap='CJK',
         spaceAfter=10
     ))
 
+    table_style = TableStyle([
+        # Font settings
+        ('FONTNAME', (0, 0), (-1, -1), chinese_font),
+        ('FONTSIZE', (0, 0), (-1, -1), 10),
+        
+        # Alignment
+        ('ALIGN', (0, 0), (0, -1), 'LEFT'),      # First column left-aligned
+        ('ALIGN', (1, 0), (-1, -1), 'CENTER'),   # Other columns centered
+        ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+        
+        # Header styling
+        ('BACKGROUND', (0, 0), (-1, 0), colors.lightgrey),
+        ('FONTNAME', (0, 0), (-1, 0), chinese_font),
+        ('FONTSIZE', (0, 0), (-1, 0), 11),
+        
+        # Borders - complete grid for all rows including total
+        ('GRID', (0, 0), (-1, -1), 1, colors.black),
+        
+        # Total row styling
+        ('SPAN', (0, -1), (1, -1)),  # Merge first two columns for "Total"
+        ('FONTNAME', (0, -1), (-1, -1), chinese_font),
+        ('ALIGN', (0, -1), (0, -1), 'RIGHT'),
+        ('FONTSIZE', (0, -1), (-1, -1), 12),
+        
+        # Padding
+        ('LEFTPADDING', (0, 0), (-1, -1), 10),
+        ('RIGHTPADDING', (0, 0), (-1, -1), 10),
+        ('TOPPADDING', (0, 0), (-1, -1), 8),
+        ('BOTTOMPADDING', (0, 0), (-1, -1), 8),
+    ])
+
+    return styles, table_style
+
+
+def generate_tuition_debit_note(
+    filename: str,
+    student_name: str,
+    month: str,                     # e.g. "11月" or "9月"
+    lessons: list,                  # List of dicts → see example below
+    lesson_desc: str,
+    notes: str = None               # Optional notes (e.g. payment received message)
+) -> None:
+    """
+    Generates a Tuition Fee Debit Note that looks identical to your PDF.
+    """
+        # Register Chinese font - using a better approach
+    # Try multiple Chinese font options
+    chinese_font = None
+    try:
+        # use a TrueType font for Chinese        
+        # Fonts from: https://fonts.google.com/noto/fonts
+        if os.path.exists('fonts/NotoSansTC-Medium.ttf'): 
+            pdfmetrics.registerFont(TTFont('ChineseFont', 'fonts/NotoSansTC-Medium.ttf'))
+            chinese_font = 'ChineseFont'
+        else:
+            # Fallback to CID font
+            chinese_font = 'STSong-Light'
+            pdfmetrics.registerFont(UnicodeCIDFont(chinese_font))
+    except:
+        # Final fallback
+        chinese_font = 'STSong-Light'
+        pdfmetrics.registerFont(UnicodeCIDFont(chinese_font))
+    
+    doc = SimpleDocTemplate(filename, pagesize=A4, topMargin=0.8*inch, bottomMargin=0.8*inch)
+    elements = []
+    styles, table_style = set_tuition_debit_note_style(chinese_font)
     # 1. Header
     header = Paragraph("Louis English Tutorial Lesson", styles['TitleCenter'])
     elements.append(header)
     elements.append(Spacer(1, 6))
 
     # 2. Main title (bilingual)
-    title = Paragraph("Tuition Fee Debit Note<br/>學費單", styles['BilingualTitle'])
+    title = Paragraph("Tuition Fee Debit Note<br/><br/>學費單", styles['BilingualTitle'])
     elements.append(title)
 
     # 3. Student & Tutor info
@@ -134,39 +159,7 @@ def generate_tuition_debit_note(
     # 6. Table styling with fixed borders
     table = Table(table_data, colWidths=[3.8*inch, 1.3*inch, 1.3*inch])
     
-    # Calculate the number of data rows (excluding header and total)
-    num_rows = len(table_data)
-    
-    table.setStyle(TableStyle([
-        # Font settings
-        ('FONTNAME', (0, 0), (-1, -1), chinese_font),
-        ('FONTSIZE', (0, 0), (-1, -1), 10),
-        
-        # Alignment
-        ('ALIGN', (0, 0), (0, -1), 'LEFT'),      # First column left-aligned
-        ('ALIGN', (1, 0), (-1, -1), 'CENTER'),   # Other columns centered
-        ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
-        
-        # Header styling
-        ('BACKGROUND', (0, 0), (-1, 0), colors.lightgrey),
-        ('FONTNAME', (0, 0), (-1, 0), chinese_font),
-        ('FONTSIZE', (0, 0), (-1, 0), 11),
-        
-        # Borders - complete grid for all rows including total
-        ('GRID', (0, 0), (-1, -1), 1, colors.black),
-        
-        # Total row styling
-        ('SPAN', (0, -1), (1, -1)),  # Merge first two columns for "Total"
-        ('FONTNAME', (0, -1), (-1, -1), chinese_font),
-        ('ALIGN', (0, -1), (0, -1), 'RIGHT'),
-        ('FONTSIZE', (0, -1), (-1, -1), 12),
-        
-        # Padding
-        ('LEFTPADDING', (0, 0), (-1, -1), 10),
-        ('RIGHTPADDING', (0, 0), (-1, -1), 10),
-        ('TOPPADDING', (0, 0), (-1, -1), 8),
-        ('BOTTOMPADDING', (0, 0), (-1, -1), 8),
-    ]))
+    table.setStyle(table_style)
     elements.append(table)
 
     # 7. Optional Notes
@@ -196,8 +189,9 @@ def generate_tuition_debit_note(
 if __name__ == "__main__":
     lesson_data, course_desc, student_name = parse_tuition_file("1 對 1 初中英文面授課-Emma.csv")
     month = 11
+    month_name = month_conversion(month)
     generate_tuition_debit_note(
-        filename=f"{student_name}_{month}_2025.pdf",
+        filename=f"{student_name}_{month_name}_2025.pdf",
         student_name=student_name,
         month=f"{month}月",
         lessons=lesson_data,
