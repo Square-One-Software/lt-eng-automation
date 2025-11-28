@@ -1,6 +1,5 @@
 from utils import parse_vocab_file, parse_tuition_file, get_month_and_month_name 
-from pdf_utils import generate_vocabulary_pdf
-from tuition_debit_note import generate_tuition_debit_note
+from pdf_utils import generate_vocabulary_pdf, generate_tuition_debit_note
 import argparse, asyncio
 
 
