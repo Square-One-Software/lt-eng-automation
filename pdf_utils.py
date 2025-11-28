@@ -206,7 +206,7 @@ def generate_tuition_debit_note(
         table_data.append(row)
 
     # Add total row with proper spacing
-    total = reduce(lambda curr, next: curr + next, [int(lesson["amount"]) for lesson in lessons])
+    total = reduce(lambda curr, next: curr + next, [int(lesson["amount"]) for lesson in lessons if lesson["makeup"] is None])
     table_data.append(["Total 總數", "", f"${total:,} HKD"])
 
     # 6. Table styling with fixed borders
