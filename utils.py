@@ -10,10 +10,11 @@ def parse_vocab_file(file):
     except IOError as error:
         print(error)
 
-def get_month_and_month_name():
+def get_month_and_month_name(next: bool = True):
    import calendar
    from datetime import date
-   m = date.today().month
+   inc = 1 if next else 0
+   m = date.today().month + inc 
    return m, calendar.month_abbr[m]
 
 def parse_tuition_file(file):

@@ -10,6 +10,7 @@ def main():
     parser.add_argument('-o', '--output', type=str, default="vocabulary_list.pdf",
                         help="Output PDF filename (default: vocabulary_list.pdf)")
     parser.add_argument('-f', '--file', type=str, help="Input vocabulary csv file name (vocab.csv)", required=True)
+    parser.add_argument('-n', '--next', type=str, choices=[0, 1], help="Input 1 for next month, 0 for current month", default=1)
     # Parse arguments
     args = parser.parse_args()
     csv_filename = args.file
@@ -29,5 +30,6 @@ def main():
             lesson_desc=course_desc,
             notes=""
         )
+        
 if __name__ == "__main__":
     main()
