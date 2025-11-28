@@ -4,9 +4,30 @@ from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, 
 from reportlab.lib.units import inch
 from reportlab.lib.styles import getSampleStyleSheet
 from reportlab.pdfbase import pdfmetrics
+from reportlab.pdfbase.ttfonts import TTFont
 from reportlab.pdfbase.cidfonts import UnicodeCIDFont
 from datetime import datetime
 from utils import create_vocabulary_table, week_of_month
+import os
+
+def register_chinese_font() -> str:
+    chinese_font = None
+    try:
+        # use a TrueType font for Chinese        
+        # Fonts from: https://fonts.google.com/noto/fonts
+        if os.path.exists('fonts/NotoSansTC-Medium.ttf'): 
+            pdfmetrics.registerFont(TTFont('ChineseFont', 'fonts/NotoSansTC-Medium.ttf'))
+            chinese_font = 'ChineseFont'
+        else:
+            # Fallback to CID font
+            chinese_font = 'STSong-Light'
+            pdfmetrics.registerFont(UnicodeCIDFont(chinese_font))
+    except:
+        # Final fallback
+        chinese_font = 'STSong-Light'
+        pdfmetrics.registerFont(UnicodeCIDFont(chinese_font))
+    
+    return chinese_font
 
 def style_vocabulary_table(chinese_font):
     """Apply styling to the vocabulary table with Chinese font support."""
@@ -29,10 +50,8 @@ async def generate_vocabulary_pdf(filename, vocab_data):
     # Create PDF document
     doc = SimpleDocTemplate(filename, pagesize=letter)
     elements = []
+    chinese_font = register_chinese_font()
     
-    chinese_font = 'STSong-Light' # from Adobe's Asian Language Packs
-    pdfmetrics.registerFont(UnicodeCIDFont(chinese_font))
-
     # Title
     styles = getSampleStyleSheet()
     title_style = styles['Title']
