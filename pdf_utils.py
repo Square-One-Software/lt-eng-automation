@@ -194,11 +194,12 @@ def generate_tuition_debit_note(
 
     # 5. Table data
     table_data = [
-        ["Tuition Fees\n學費", "Payment\n付款狀態", "Lesson\n課堂狀態"],
+        ["Tuition Fees\n學費", "Payment\n付款狀態", "Lesson\n課堂狀態"]
     ]
     for lesson in lessons:
+        desc = f"補堂 -- {lesson['makeup']} ({lesson['date']})" if lesson["makeup"] else f"{lesson_desc} ({lesson['date']}) - {lesson['amount']} HKD" 
         row = [
-            f"{lesson_desc} ({lesson['date']}) - {lesson['amount']} HKD",
+            desc,
             lesson['payment'],
             lesson['status']
         ]
