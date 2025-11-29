@@ -63,7 +63,11 @@ async def receive_list(update: Update, context: ContextTypes.DEFAULT_TYPE) -> in
     try:
         pairs = [item.strip().split(",") for item in text.split(";")]
         vocab_data = []
-        for word, pos_raw in pairs:
+        
+        for pair in pairs:
+            if len(pair) < 2:
+                raise ValueError(f"This pair of word has the word or pos missing: {pair}")
+            word, pos_raw  = pair
             if len(word) == 0 or len(pos_raw) == 0:
                 raise ValueError("Empty word or POS")
             # Normalise POS (v → verb, n → noun, adj → adjective, adv → adverb)

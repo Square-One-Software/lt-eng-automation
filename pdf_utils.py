@@ -155,8 +155,6 @@ def generate_tuition_debit_note(
     """
     Generates a Tuition Fee Debit Note that looks identical to your PDF.
     """
-        # Register Chinese font - using a better approach
-    # Try multiple Chinese font options
     chinese_font = register_chinese_font()
     
     doc = SimpleDocTemplate(filename, pagesize=A4, topMargin=0.8*inch, bottomMargin=0.8*inch)
