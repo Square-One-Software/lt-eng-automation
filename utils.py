@@ -3,10 +3,15 @@ from googletrans import Translator  # For translation
 
 def parse_vocab_file(file):
     try:
+        if not os.path.exists(file):
+            raise FileNotFoundError(f"File not found: {file}")
+        
         with open(file, "r") as f:
             reader = csv.reader(f)
             vocab_data = [tuple(i) for i in reader]
         return vocab_data
+    except FileNotFoundError as error:
+        print(error)
     except IOError as error:
         print(error)
 
