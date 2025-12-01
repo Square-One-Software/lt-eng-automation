@@ -2,6 +2,6 @@
 *.pdf
 *.csv
 *.env
-*.txt
+note.txt
 
 /__pycache__
