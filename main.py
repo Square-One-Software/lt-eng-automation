@@ -1,5 +1,6 @@
 from utils import parse_vocab_file, parse_tuition_file 
 from pdf_utils import generate_vocabulary_pdf, generate_tuition_debit_note
+from datetime import datetime
 import argparse, asyncio
 
 
@@ -20,13 +21,14 @@ def main():
         asyncio.run(generate_vocabulary_pdf(output_filename, vocab_data))
     else:
         lesson_data, course_desc, student_name, month, month_name = parse_tuition_file(csv_filename)
+        current_year = datetime.now().year
         generate_tuition_debit_note(
-            filename=f"{student_name}_{month_name}_2025.pdf",
+            filename=f"TuitionFeeDebitNote_{student_name}_{month_name}_{current_year}.pdf",
             student_name=student_name,
             month=f"{month}月",
             lessons=lesson_data,
             lesson_desc=course_desc,
-            notes="* Full Payment Received on  12-01-2025  — Thank You! 感謝！"
+            notes=""
         )
         
 if __name__ == "__main__":

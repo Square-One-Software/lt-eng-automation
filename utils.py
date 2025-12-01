@@ -1,4 +1,4 @@
-import csv, asyncio, os
+import csv, asyncio, calendar, os
 from googletrans import Translator  # For translation
 
 def parse_vocab_file(file):
@@ -14,10 +14,6 @@ def parse_vocab_file(file):
         print(error)
     except IOError as error:
         print(error)
-
-def get_month_name(m: int):
-   import calendar
-   return calendar.month_abbr[m]
 
 def parse_tuition_file(file):
     TUITION_SCHEMA = {
@@ -43,11 +39,10 @@ def parse_tuition_file(file):
         
         course_code, student_name, month = name_parts
 
-        month_name = get_month_name(int(month))
+        month_name = calendar.month_abbr[int(month)]
 
         if course_code not in TUITION_SCHEMA:
             raise ValueError(f"Invalid Course Code: {course_code} is not a valid course code")
-        
     
         with open(file, "r") as f:
             reader = csv.DictReader(f)
