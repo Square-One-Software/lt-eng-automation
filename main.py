@@ -1,4 +1,4 @@
-from utils import parse_vocab_file, parse_tuition_file, get_month_and_month_name 
+from utils import parse_vocab_file, parse_tuition_file 
 from pdf_utils import generate_vocabulary_pdf, generate_tuition_debit_note
 import argparse, asyncio
 
@@ -10,7 +10,6 @@ def main():
     parser.add_argument('-o', '--output', type=str, default="vocabulary_list.pdf",
                         help="Output PDF filename (default: vocabulary_list.pdf)")
     parser.add_argument('-f', '--file', type=str, help="Input vocabulary csv file name (vocab.csv)", required=True)
-    parser.add_argument('-n', '--next', type=str, choices=[0, 1], help="Input 1 for next month, 0 for current month", default=1)
     # Parse arguments
     args = parser.parse_args()
     csv_filename = args.file
@@ -20,15 +19,14 @@ def main():
         # Generate PDF
         asyncio.run(generate_vocabulary_pdf(output_filename, vocab_data))
     else:
-        lesson_data, course_desc, student_name = parse_tuition_file(csv_filename)
-        month, month_name = get_month_and_month_name()
+        lesson_data, course_desc, student_name, month, month_name = parse_tuition_file(csv_filename)
         generate_tuition_debit_note(
             filename=f"{student_name}_{month_name}_2025.pdf",
             student_name=student_name,
             month=f"{month}月",
             lessons=lesson_data,
             lesson_desc=course_desc,
-            notes=""
+            notes="* Full Payment Received on  12-01-2025  — Thank You! 感謝！"
         )
         
 if __name__ == "__main__":

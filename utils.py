@@ -15,12 +15,9 @@ def parse_vocab_file(file):
     except IOError as error:
         print(error)
 
-def get_month_and_month_name(next: bool = True):
+def get_month_name(m: int):
    import calendar
-   from datetime import date
-   inc = 1 if next else 0
-   m = date.today().month + inc 
-   return m, calendar.month_abbr[m]
+   return calendar.month_abbr[m]
 
 def parse_tuition_file(file):
     TUITION_SCHEMA = {
@@ -41,10 +38,12 @@ def parse_tuition_file(file):
 
         name_parts = file.split(".")[0].split("-") 
         
-        if len(name_parts) != 2:
-            raise ValueError(f"Invalid file name error. Expected 'COURSECODE-NAME.csv', but got {file}")
+        if len(name_parts) != 3:
+            raise ValueError(f"Invalid file name error. Expected 'COURSECODE-NAME-Month.csv', but got {file}")
         
-        course_code, student_name = name_parts
+        course_code, student_name, month = name_parts
+
+        month_name = get_month_name(int(month))
 
         if course_code not in TUITION_SCHEMA:
             raise ValueError(f"Invalid Course Code: {course_code} is not a valid course code")
@@ -53,7 +52,7 @@ def parse_tuition_file(file):
         with open(file, "r") as f:
             reader = csv.DictReader(f)
             tuition_data = [{key: TUITION_SCHEMA.get(val, val) for (key, val) in row.items()} for row in reader]
-        return tuition_data, TUITION_SCHEMA[course_code], student_name
+        return tuition_data, TUITION_SCHEMA[course_code], student_name, month, month_name
     except FileNotFoundError as e:
         print(f"Error: {e}")
         raise
