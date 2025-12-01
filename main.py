@@ -1,4 +1,4 @@
-from utils import parse_vocab_file, parse_tuition_file 
+from utils import parse_vocab_file, parse_tuition_file, parse_note_txt
 from pdf_utils import generate_vocabulary_pdf, generate_tuition_debit_note
 from datetime import datetime
 import argparse, asyncio
@@ -11,15 +11,20 @@ def main():
     parser.add_argument('-o', '--output', type=str, default="vocabulary_list.pdf",
                         help="Output PDF filename (default: vocabulary_list.pdf)")
     parser.add_argument('-f', '--file', type=str, help="Input vocabulary csv file name (vocab.csv)", required=True)
+    parser.add_argument('-n', '--note', type=str, help="Input txt file name for notes (notes.csv)", required=False)
     # Parse arguments
     args = parser.parse_args()
     csv_filename = args.file
+    note_filename = args.note
     if args.type == VC: 
         output_filename = args.output
         vocab_data = parse_vocab_file(csv_filename)
         # Generate PDF
         asyncio.run(generate_vocabulary_pdf(output_filename, vocab_data))
     else:
+        note_data = "\n"
+        if note_filename:
+            note_data = "\n".join(parse_note_txt(note_filename)) 
         lesson_data, course_desc, student_name, month, month_name = parse_tuition_file(csv_filename)
         current_year = datetime.now().year
         generate_tuition_debit_note(
@@ -28,7 +33,7 @@ def main():
             month=f"{month}月",
             lessons=lesson_data,
             lesson_desc=course_desc,
-            notes=""
+            notes=note_data
         )
         
 if __name__ == "__main__":

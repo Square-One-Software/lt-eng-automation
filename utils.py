@@ -58,6 +58,18 @@ def parse_tuition_file(file):
         print(f"Unexpected error parsing file '{file}': {e}")
         raise
 
+def parse_note_txt(filename):
+    try:
+        if not os.path.exists(filename):
+            raise FileNotFoundError(f"File not found: {filename}")
+        # Use 'with open' for automatic file closing
+        with open(filename, 'r', encoding='utf-8') as file:
+            data_list = [line.strip() for line in file]
+        return data_list
+    except FileNotFoundError as e:
+        print(f"Error: {e}")
+        raise
+
 def week_of_month(dt):
     """ Returns the week of the month for the specified date."""
     # Get the day of the week for the first day of the month (Monday = 0, Sunday = 6)
