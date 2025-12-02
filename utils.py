@@ -25,6 +25,7 @@ def parse_tuition_file(file):
         "PA": "Paid 已付",
         "NA": "N/A",
         "S": "Scheduled 已安排",
+        "C": "Completed 完成",
         "R": "Rescheduled 調堂"
     }
     
