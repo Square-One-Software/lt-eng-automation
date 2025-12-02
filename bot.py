@@ -319,7 +319,7 @@ async def random_joke(update: Update, _: ContextTypes.DEFAULT_TYPE) -> int:
 def main() -> None:
     app = Application.builder().token(TG_BOT_TOKEN).build()
 
-    conv_handler = ConversationHandler(
+    vocab_conv_handler = ConversationHandler(
         entry_points=[CommandHandler("vocab", vocab_start)],
         states={
             ASKING_FOR_NAME: [MessageHandler(filters.TEXT & ~filters.COMMAND, receive_name)],
@@ -328,7 +328,7 @@ def main() -> None:
         fallbacks=[CommandHandler("cancel", cancel)],
     )
 
-    conv_handler = ConversationHandler(
+    tuition_conv_handler = ConversationHandler(
         entry_points=[CommandHandler("tuition", tuition_note_start)],
         states={
             WAITING_FOR_FILE: [MessageHandler(filters.TEXT & ~filters.COMMAND, receive_file)],
@@ -337,7 +337,8 @@ def main() -> None:
         fallbacks=[CommandHandler("cancel", cancel)],
     )
 
-    app.add_handler(conv_handler)
+    app.add_handler(vocab_conv_handler)
+    app.add_handler(tuition_conv_handler)
 
     app.add_handler(CommandHandler("start", lambda u, c: u.message.reply_text(
         "Hi! Molly is here! Use /vocab to generate a review notes PDF."
