@@ -6,10 +6,11 @@ Press Ctrl-C on the command line or send a signal to the process to stop the
 bot.
 """
 import os
-import logging, requests
+import logging, requests 
+import http.client, urllib.parse
 from dotenv import load_dotenv
 from os import getenv, remove
-from telegram import  Update 
+from telegram import  Update
 from telegram.ext import (
     Application,
     CommandHandler,
@@ -19,11 +20,12 @@ from telegram.ext import (
     filters,
 )
 from pdf_utils import generate_vocabulary_pdf, generate_tuition_debit_note
-from utils import parse_tuition_file
+from utils import parse_tuition_file, format_multiple_news_articles
 
 
 load_dotenv()
 TG_BOT_TOKEN = getenv("TG_BOT_TOKEN")
+NEWS_API_TOKEN = getenv("NEWS_API_TOKEN")
 
 # Enable logging
 logging.basicConfig(
@@ -313,6 +315,44 @@ async def random_joke(update: Update, _: ContextTypes.DEFAULT_TYPE) -> int:
     joke = requests.get("http://www.official-joke-api.appspot.com/random_joke").json()
     await update.message.reply_text(f"Let me tell you something random hehe...\n\n{joke['setup']}\n{joke['punchline']}\n\nHave a nice day!")
     return ConversationHandler.END
+
+async def fetch_news(update: Update, _: ContextTypes.DEFAULT_TYPE) -> int:
+    try:
+        conn = http.client.HTTPSConnection('api.thenewsapi.com')
+        params = urllib.parse.urlencode({
+            'api_token': NEWS_API_TOKEN,
+            'categories': 'politics,tech',
+            'language': "en",
+            'limit': 3,
+        })
+        conn.request('GET', '/v1/news/all?{}'.format(params))
+        res = conn.getresponse()
+        news_data = json.loads(res.read())
+        print(news_data)
+        articles = news_data.get("data", [])
+        print(articles)
+
+        if not articles:
+            await update.message.reply_text("📰 No news articles found at the moment.")
+            return ConversationHandler.END
+        
+        formatted_messages = format_multiple_news_articles(articles, max_articles=1)
+        print(formatted_messages)
+        
+        for message in formatted_messages:
+            await update.message.reply_text(
+                message,
+                parse_mode="Markdown",
+                disable_web_page_preview=False  # Set to True to hide link previews
+            )
+
+        return ConversationHandler.END
+    except Exception as e:
+        print(e)
+        await update.message.reply_text(
+            "❌ Sorry, there was an error fetching the news. Please try again later T.T"
+        )
+
 
 def main() -> None:
     app = Application.builder().token(TG_BOT_TOKEN).build()
