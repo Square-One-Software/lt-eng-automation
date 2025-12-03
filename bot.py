@@ -109,9 +109,7 @@ async def receive_file(update: Update, context: ContextTypes.DEFAULT_TYPE) -> in
             )
             
             await update.message.reply_text(summary_message, parse_mode='Markdown')
-            
             return WAITING_FOR_NOTES
-            
         except (FileNotFoundError, ValueError) as e:
             # Clean up the downloaded file
             if os.path.exists(local_file_path):
@@ -332,7 +330,7 @@ def main() -> None:
         entry_points=[CommandHandler("tuition", tuition_note_start)],
         states={
             WAITING_FOR_FILE: [MessageHandler(filters.TEXT & ~filters.COMMAND, receive_file)],
-            WAITING_FOR_LIST: [MessageHandler(filters.TEXT & ~filters.COMMAND, receive_list), CommandHandler("skip", skip_notes)],
+            WAITING_FOR_NOTES: [MessageHandler(filters.TEXT & ~filters.COMMAND, receive_notes), CommandHandler("skip", skip_notes)],
         },
         fallbacks=[CommandHandler("cancel", cancel)],
     )
