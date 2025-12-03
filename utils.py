@@ -1,4 +1,4 @@
-import csv, asyncio, calendar, os
+import csv, asyncio, calendar, os, datetime
 from googletrans import Translator  # For translation
 
 def parse_vocab_file(file):
@@ -104,3 +104,136 @@ async def create_vocabulary_table(data):
     for (vocab, pos), chinese in zip(data, translations):
         table_data.append([f"{vocab} ({pos})", chinese])
     return table_data
+
+def escape_markdown(text: str) -> str:
+    """
+    Escape special characters for Telegram Markdown.
+    
+    Args:
+        text: Text to escape
+        
+    Returns:
+        Escaped text safe for Telegram Markdown
+    """
+    if not text:
+        return ""
+    
+    # Characters that need to be escaped in Telegram Markdown
+    special_chars = ['_', '*', '[', ']', '(', ')', '~', '`', '>', '#', '+', '-', '=', '|', '{', '}', '.', '!']
+    
+    escaped_text = text
+    for char in special_chars:
+        escaped_text = escaped_text.replace(char, f"//{char}")
+    
+    return escaped_text
+
+def format_news_article(article: dict) -> str:
+    """
+    Format a single news article for Telegram display in Markdown.
+    
+    Args:
+        article: Dictionary containing article data from news API
+        
+    Returns:
+        Formatted string in Telegram Markdown format
+    """
+    # Extract fields with fallbacks
+    title = article.get('title', 'No Title')
+    source = article.get('source_id', article.get('domain', 'Unknown Source'))
+    description = article.get('description', article.get('snippet', ''))
+    url = article.get('url', article.get('link', ''))
+    pub_date = article.get('published_at', article.get('pubDate', ''))
+    author = article.get('author', '')
+    image_url = article.get('image_url', article.get('urlToImage', ''))
+    categories = article.get('categories', [])
+    
+    # Format publication date
+    date_str = ''
+    if pub_date:
+        try:
+            # Try parsing ISO format
+            if isinstance(pub_date, str):
+                dt = datetime.fromisoformat(pub_date.replace('Z', '+00:00'))
+                date_str = dt.strftime('%b %d, %Y at %I:%M %p')
+        except:
+            date_str = pub_date
+    
+    # Build the formatted message
+    message_parts = []
+    
+    # Title (bold and larger)
+    if title:
+        # Escape special characters for Markdown
+        title_escaped = escape_markdown(title)
+        message_parts.append(f"*{title_escaped}*")
+    
+    # Source and date
+    metadata = []
+    if source:
+        source_clean = source.replace('.com-1', '').replace('-', ' ').title()
+        metadata.append(f"📰 {source_clean}")
+    if date_str:
+        metadata.append(f"🕐 {date_str}")
+    if metadata:
+        message_parts.append(' • '.join(metadata))
+    
+    # Author
+    if author and author.lower() not in ['unknown', 'none', 'n/a']:
+        message_parts.append(f"✍️ By {escape_markdown(author)}")
+    
+    # Description
+    if description:
+        desc_escaped = escape_markdown(description)
+        # Truncate if too long
+        if len(desc_escaped) > 300:
+            desc_escaped = desc_escaped[:297] + "..."
+        message_parts.append(f"\n{desc_escaped}")
+    
+    # Read more link
+    if url:
+        message_parts.append(f"\n[Read Full Article: {url}")
+    
+    return "\n\n".join(message_parts)
+
+
+def format_multiple_news_articles(articles: list, max_articles: int = 5) -> list[str]:
+    """
+    Format multiple news articles for Telegram, splitting into multiple messages if needed.
+    
+    Args:
+        articles: List of article dictionaries
+        max_articles: Maximum number of articles to format
+        
+    Returns:
+        List of formatted message strings (split to avoid Telegram's message length limit)
+    """
+    messages = []
+    current_message = []
+    current_length = 0
+    max_length = 2000  # Telegram's limit is 4096, leave some buffer
+    
+    # Add header
+    header = f"📰 *Latest News* ({min(len(articles), max_articles)} articles)\n"
+    current_message.append(header)
+    current_length += len(header)
+    
+    for _, article in enumerate(articles[:max_articles]):
+        formatted_article = format_news_article(article)
+        article_length = len(formatted_article)
+        
+        # Check if adding this article would exceed the limit
+        if current_length + article_length > max_length and current_message:
+            # Save current message and start a new one
+            messages.append("".join(current_message))
+            current_message = []
+            current_length = 0
+        
+        current_message.append(formatted_article)
+        current_length += article_length
+    
+    # Add the last message
+    if current_message:
+        messages.append("".join(current_message))
+    
+    return messages
+
