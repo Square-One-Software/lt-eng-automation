@@ -60,6 +60,7 @@ async def receive_file(update: Update, context: ContextTypes.DEFAULT_TYPE) -> in
         # Get the file from Telegram
         file = await context.bot.get_file(update.message.document)
         
+        print("here", file)
         # Get the original filename
         original_filename = update.message.document.file_name
         
@@ -78,6 +79,7 @@ async def receive_file(update: Update, context: ContextTypes.DEFAULT_TYPE) -> in
         # Download the file to local storage
         local_file_path = os.path.join(temp_dir, original_filename)
         await file.download_to_drive(local_file_path)
+        print("here")
         
         # Parse the CSV file
         try:
@@ -354,7 +356,7 @@ def main() -> None:
     tuition_conv_handler = ConversationHandler(
         entry_points=[CommandHandler("tuition", tuition_note_start)],
         states={
-            WAITING_FOR_FILE: [MessageHandler(filters.TEXT & ~filters.COMMAND, receive_file)],
+            WAITING_FOR_FILE: [MessageHandler(filters.Document.FileExtension("csv") & ~filters.COMMAND, receive_file)],
             WAITING_FOR_NOTES: [MessageHandler(filters.TEXT & ~filters.COMMAND, receive_notes), CommandHandler("skip", skip_notes)],
         },
         fallbacks=[CommandHandler("cancel", cancel)],
