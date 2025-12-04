@@ -38,7 +38,10 @@ def parse_tuition_file(file):
         if len(name_parts) != 3:
             raise ValueError(f"Invalid file name error. Expected 'COURSECODE-NAME-Month.csv', but got {file}")
         
-        course_code, student_name, month = name_parts
+        course_code, student_name, month = name_parts 
+        
+        if "/" in course_code:
+            course_code = course_code.split("/")[1]
 
         month_name = calendar.month_abbr[int(month)]
 
