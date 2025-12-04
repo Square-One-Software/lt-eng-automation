@@ -59,8 +59,6 @@ async def receive_file(update: Update, context: ContextTypes.DEFAULT_TYPE) -> in
     try:
         # Get the file from Telegram
         file = await context.bot.get_file(update.message.document)
-        
-        print("here", file)
         # Get the original filename
         original_filename = update.message.document.file_name
         
@@ -79,8 +77,6 @@ async def receive_file(update: Update, context: ContextTypes.DEFAULT_TYPE) -> in
         # Download the file to local storage
         local_file_path = os.path.join(temp_dir, original_filename)
         await file.download_to_drive(local_file_path)
-        print("here")
-        
         # Parse the CSV file
         try:
             tuition_data, course_desc, student_name, month, month_name = parse_tuition_file(local_file_path)
@@ -92,6 +88,7 @@ async def receive_file(update: Update, context: ContextTypes.DEFAULT_TYPE) -> in
             context.user_data['month'] = month
             context.user_data['month_name'] = month_name
             context.user_data['file_path'] = local_file_path
+            context.user_data["lessons"] = tuition_data
             
             # Calculate total amount
             total_amount = sum(
@@ -159,18 +156,13 @@ async def receive_notes(update: Update, context: ContextTypes.DEFAULT_TYPE) -> i
         month = context.user_data.get('month')
         month_name = context.user_data.get('month_name')
         file_path = context.user_data.get('file_path')
+        lessons = context.user_data.get("lessons")
         
         if not all([tuition_data, course_desc, student_name, month]):
             await update.message.reply_text(
                 "❌ Error: Missing data. Please start over by sending the CSV file again."
             )
             return ConversationHandler.END
-        
-        # Calculate total amount
-        total_amount = sum(
-            float(lesson['amount'].replace(' HKD', '').replace(',', ''))
-            for lesson in tuition_data
-        )
         
         # Generate PDF filename
         pdf_filename = f"{student_name}_{month_name}_{month}_2025.pdf"
@@ -179,16 +171,6 @@ async def receive_notes(update: Update, context: ContextTypes.DEFAULT_TYPE) -> i
         await update.message.reply_text("⏳ Generating PDF invoice...")
         
         # Format lessons for PDF generation
-        lessons = [
-            {
-                "date": lesson.get('date', 'N/A'),
-                "desc": lesson.get('desc', course_desc),
-                "amount": lesson.get('amount', '0 HKD'),
-                "payment": lesson.get('payment', 'N/A'),
-                "status": lesson.get('status', 'N/A')
-            }
-            for lesson in tuition_data
-        ]
         
         # Generate the PDF (using your existing function)
         generate_tuition_debit_note(
@@ -196,8 +178,8 @@ async def receive_notes(update: Update, context: ContextTypes.DEFAULT_TYPE) -> i
             student_name=student_name,
             month=f"{month_name} {month}月",
             lessons=lessons,
-            total_amount=f"$ {total_amount:,.0f} HKD",
-            notes=notes if notes else None
+            lesson_desc=course_desc,
+            notes=notes if notes else " " 
         )
         
         # Send the PDF file
