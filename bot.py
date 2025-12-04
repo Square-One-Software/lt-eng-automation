@@ -7,7 +7,6 @@ bot.
 """
 import os
 import logging, requests 
-import http.client, urllib.parse
 from dotenv import load_dotenv
 from os import getenv, remove
 from telegram import  Update
@@ -20,7 +19,7 @@ from telegram.ext import (
     filters,
 )
 from pdf_utils import generate_vocabulary_pdf, generate_tuition_debit_note
-from utils import parse_tuition_file, format_multiple_news_articles
+from utils import parse_tuition_file, format_multiple_news_articles, fetch_news
 
 
 load_dotenv()
@@ -316,28 +315,14 @@ async def random_joke(update: Update, _: ContextTypes.DEFAULT_TYPE) -> int:
     await update.message.reply_text(f"Let me tell you something random hehe...\n\n{joke['setup']}\n{joke['punchline']}\n\nHave a nice day!")
     return ConversationHandler.END
 
-async def fetch_news(update: Update, _: ContextTypes.DEFAULT_TYPE) -> int:
+async def send_news(update: Update, _: ContextTypes.DEFAULT_TYPE) -> int:
     try:
-        conn = http.client.HTTPSConnection('api.thenewsapi.com')
-        params = urllib.parse.urlencode({
-            'api_token': NEWS_API_TOKEN,
-            'categories': 'politics,tech',
-            'language': "en",
-            'limit': 3,
-        })
-        conn.request('GET', '/v1/news/all?{}'.format(params))
-        res = conn.getresponse()
-        news_data = json.loads(res.read())
-        print(news_data)
-        articles = news_data.get("data", [])
-        print(articles)
-
+        articles = fetch_news(NEWS_API_TOKEN)
         if not articles:
             await update.message.reply_text("📰 No news articles found at the moment.")
             return ConversationHandler.END
         
         formatted_messages = format_multiple_news_articles(articles, max_articles=1)
-        print(formatted_messages)
         
         for message in formatted_messages:
             await update.message.reply_text(
@@ -383,6 +368,7 @@ def main() -> None:
     )))
     
     app.add_handler(CommandHandler("random", random_joke))
+    app.add_handler(CommandHandler("news", send_news))
 
     print("Bot is running…")
     app.run_polling(allowed_updates=Update.ALL_TYPES)
