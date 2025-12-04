@@ -1,4 +1,4 @@
-import csv, asyncio, calendar, os, datetime
+import csv, asyncio, calendar, os, datetime, json, http, urllib
 from googletrans import Translator  # For translation
 
 def parse_vocab_file(file):
@@ -123,7 +123,7 @@ def escape_markdown(text: str) -> str:
     
     escaped_text = text
     for char in special_chars:
-        escaped_text = escaped_text.replace(char, f"//{char}")
+        escaped_text = escaped_text.replace(char, "")
     
     return escaped_text
 
@@ -139,13 +139,9 @@ def format_news_article(article: dict) -> str:
     """
     # Extract fields with fallbacks
     title = article.get('title', 'No Title')
-    source = article.get('source_id', article.get('domain', 'Unknown Source'))
-    description = article.get('description', article.get('snippet', ''))
-    url = article.get('url', article.get('link', ''))
-    pub_date = article.get('published_at', article.get('pubDate', ''))
-    author = article.get('author', '')
-    image_url = article.get('image_url', article.get('urlToImage', ''))
-    categories = article.get('categories', [])
+    description = article.get('description', "")
+    url = article.get('url', article.get('url', ''))
+    pub_date = article.get('published_at', "")
     
     # Format publication date
     date_str = ''
@@ -169,17 +165,8 @@ def format_news_article(article: dict) -> str:
     
     # Source and date
     metadata = []
-    if source:
-        source_clean = source.replace('.com-1', '').replace('-', ' ').title()
-        metadata.append(f"📰 {source_clean}")
     if date_str:
         metadata.append(f"🕐 {date_str}")
-    if metadata:
-        message_parts.append(' • '.join(metadata))
-    
-    # Author
-    if author and author.lower() not in ['unknown', 'none', 'n/a']:
-        message_parts.append(f"✍️ By {escape_markdown(author)}")
     
     # Description
     if description:
@@ -191,12 +178,12 @@ def format_news_article(article: dict) -> str:
     
     # Read more link
     if url:
-        message_parts.append(f"\n[Read Full Article: {url}")
+        message_parts.append(f"\n[Read Full Article: {url}]")
     
-    return "\n\n".join(message_parts)
+    return "\n".join(message_parts)
 
 
-def format_multiple_news_articles(articles: list, max_articles: int = 5) -> list[str]:
+def format_multiple_news_articles(articles: list, max_articles: int = 3) -> list[str]:
     """
     Format multiple news articles for Telegram, splitting into multiple messages if needed.
     
@@ -208,32 +195,33 @@ def format_multiple_news_articles(articles: list, max_articles: int = 5) -> list
         List of formatted message strings (split to avoid Telegram's message length limit)
     """
     messages = []
-    current_message = []
-    current_length = 0
-    max_length = 2000  # Telegram's limit is 4096, leave some buffer
-    
-    # Add header
+    max_length = 4000  # Telegram's limit is 4096, leave some buffer
     header = f"📰 *Latest News* ({min(len(articles), max_articles)} articles)\n"
-    current_message.append(header)
-    current_length += len(header)
+    messages.append(header)
     
     for _, article in enumerate(articles[:max_articles]):
         formatted_article = format_news_article(article)
         article_length = len(formatted_article)
-        
         # Check if adding this article would exceed the limit
-        if current_length + article_length > max_length and current_message:
+        if article_length < max_length:
             # Save current message and start a new one
-            messages.append("".join(current_message))
-            current_message = []
-            current_length = 0
-        
-        current_message.append(formatted_article)
-        current_length += article_length
-    
-    # Add the last message
-    if current_message:
-        messages.append("".join(current_message))
-    
+            messages.append(formatted_article)
     return messages
+
+
+def fetch_news(NEWS_API_TOKEN):
+    try:
+        conn = http.client.HTTPSConnection('api.thenewsapi.com')
+        params = urllib.parse.urlencode({
+            'api_token': NEWS_API_TOKEN,
+            'categories': 'politics,tech',
+            'language': "en",
+            'limit': 3,
+        })
+        conn.request('GET', '/v1/news/all?{}'.format(params))
+        res = conn.getresponse()
+        news_data = json.loads(res.read())
+        return news_data.get("data", [])
+    except Exception as e:
+        print(f"Error: {e}")
 
