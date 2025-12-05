@@ -339,7 +339,7 @@ def main() -> None:
         entry_points=[CommandHandler("tuition", tuition_note_start)],
         states={
             WAITING_FOR_FILE: [MessageHandler(filters.Document.FileExtension("csv") & ~filters.COMMAND, receive_file)],
-            WAITING_FOR_NOTES: [MessageHandler(filters.TEXT & ~filters.COMMAND, receive_notes), CommandHandler("skip", skip_notes)],
+            WAITING_FOR_NOTES: [MessageHandler(filters.TEXT, receive_notes), CommandHandler("skip", skip_notes)],
         },
         fallbacks=[CommandHandler("cancel", cancel)],
     )
