@@ -1,5 +1,6 @@
 import csv, asyncio, calendar, os, datetime, json, http, urllib
 from googletrans import Translator  # For translation
+from pathlib import Path
 
 def parse_vocab_file(file):
     try:
@@ -30,7 +31,13 @@ def parse_tuition_file(file):
     }
     
     try:
-        if not os.path.exists(file):
+        tuition_data_dir = "tuition_data"
+        data_dir_path = Path(tuition_data_dir)
+        if not data_dir_path.exists():
+            os.makedirs(tuition_data_dir)
+
+        file_path = os.path.join(tuition_data_dir, file)
+        if not os.path.exists(file_path):
             raise FileNotFoundError(f"File not found: {file}")
 
         name_parts = file.split(".")[0].split("-") 
@@ -48,7 +55,7 @@ def parse_tuition_file(file):
         if course_code not in TUITION_SCHEMA:
             raise ValueError(f"Invalid Course Code: {course_code} is not a valid course code")
     
-        with open(file, "r") as f:
+        with open(file_path, "r") as f:
             reader = csv.DictReader(f)
             tuition_data = [{key: TUITION_SCHEMA.get(val, val) for (key, val) in row.items()} for row in reader]
         return tuition_data, TUITION_SCHEMA[course_code], student_name, month, month_name
