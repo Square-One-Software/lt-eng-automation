@@ -1,7 +1,8 @@
 from utils import parse_vocab_file, parse_tuition_file, parse_note_txt
 from pdf_utils import generate_vocabulary_pdf, generate_tuition_debit_note
 from datetime import datetime
-import argparse, asyncio
+from pathlib import Path
+import argparse, asyncio, shutil, os
 
 
 def main():
@@ -27,14 +28,20 @@ def main():
             note_data = "\n".join(parse_note_txt(note_filename)) 
         lesson_data, course_desc, student_name, month, month_name = parse_tuition_file(csv_filename)
         current_year = datetime.now().year
+        file_name = f"TuitionFeeDebitNote_{student_name}_{month_name}_{current_year}.pdf"
         generate_tuition_debit_note(
-            filename=f"TuitionFeeDebitNote_{student_name}_{month_name}_{current_year}.pdf",
+            filename=file_name,
             student_name=student_name,
             month=f"{month}月",
             lessons=lesson_data,
             lesson_desc=course_desc,
             notes=note_data
         )
+        tuition_note_dir = "tuition_notes"
+        if not Path(tuition_note_dir).is_dir():
+            os.makedirs(tuition_note_dir)
+
+        shutil.move(file_name, os.path.join(tuition_note_dir, file_name))
         
 if __name__ == "__main__":
     main()
