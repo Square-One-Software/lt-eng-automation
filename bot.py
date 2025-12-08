@@ -18,6 +18,7 @@ from telegram.ext import (
     MessageHandler,
     filters,
 )
+from requests.exceptions import HTTPError, ConnectionError, RequestException
 from pdf_utils import generate_vocabulary_pdf, generate_tuition_debit_note
 from utils import parse_tuition_file, format_multiple_news_articles, fetch_news
 
@@ -316,12 +317,28 @@ async def send_news(update: Update, _: ContextTypes.DEFAULT_TYPE) -> int:
             )
 
         return ConversationHandler.END
-    except Exception as e:
+    except TimeoutError as e:
         print(e)
         await update.message.reply_text(
-            "❌ Sorry, there was an error fetching the news. Please try again later T.T"
+            f"❌ Sorry, there was an error fetching the news. {e} \n\n Please try again later T.T"
         )
-
+    except ConnectionError as e:
+        print(e)
+        await update.message.reply_text(
+            f"❌ Sorry, there was a conntection error when fetching the news. \n {e} \n\n Please try again later T.T"
+        )
+    except ValueError as e:
+        print(e)
+        await update.message.reply_text(
+            f"❌ Sorry, there was an error fetching the news. \n\n Please try again later T.T"
+        )
+    except RuntimeError as e:
+        print(e)
+        await update.message.reply_text(
+            f"❌ Sorry, there was an error fetching the news. \n\n Please try again later T.T"
+        )
+    finally:
+        return ConversationHandler.END
 
 def main() -> None:
     app = Application.builder().token(TG_BOT_TOKEN).build()
