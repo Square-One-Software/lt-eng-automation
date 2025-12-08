@@ -1,4 +1,4 @@
-import csv, asyncio, calendar, os, datetime, json, http, urllib
+import csv, asyncio, calendar, os, datetime, requests
 from googletrans import Translator  # For translation
 from pathlib import Path
 
@@ -221,17 +221,30 @@ def format_multiple_news_articles(articles: list, max_articles: int = 3) -> list
 
 def fetch_news(NEWS_API_TOKEN):
     try:
-        conn = http.client.HTTPSConnection('api.thenewsapi.com')
-        params = urllib.parse.urlencode({
+        res = requests.get(
+            "https://api.thenewsapi.com/v1/news/top",
+            params={
             'api_token': NEWS_API_TOKEN,
-            'categories': 'politics,tech',
+            'categories': 'politics,tech,business',
             'language': "en",
             'limit': 3,
-        })
-        conn.request('GET', '/v1/news/all?{}'.format(params))
-        res = conn.getresponse()
-        news_data = json.loads(res.read())
+            },
+            timeout=10)
+    
+        res.raise_for_status()
+        news_data = res.json()
+        if 'error' in news_data:
+            raise ValueError(f"API error: {news_data['error']}")
         return news_data.get("data", [])
-    except Exception as e:
-        print(f"Error: {e}")
-
+    except requests.exceptions.Timeout:
+        print("Request timed out")
+        raise TimeoutError("News API request timed out") from None
+    except requests.exceptions.ConnectionError as e:
+        print(f"Connection error: {e}")
+        raise ConnectionError("Failed to connect to news API") from e
+    except requests.exceptions.HTTPError as e:
+        print(f"HTTP error: {e}")
+        raise ValueError(f"API returned error: {e}") from e
+    except requests.exceptions.RequestException as e:
+        print(f"Request error: {e}")
+        raise RuntimeError("Failed to fetch news") from e
