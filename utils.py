@@ -151,18 +151,6 @@ def format_news_article(article: dict) -> str:
     title = article.get('title', 'No Title')
     description = article.get('description', "")
     url = article.get('url', article.get('url', ''))
-    pub_date = article.get('published_at', "")
-    
-    # Format publication date
-    date_str = ''
-    if pub_date:
-        try:
-            # Try parsing ISO format
-            if isinstance(pub_date, str):
-                dt = datetime.fromisoformat(pub_date.replace('Z', '+00:00'))
-                date_str = dt.strftime('%b %d, %Y at %I:%M %p')
-        except:
-            date_str = pub_date
     
     # Build the formatted message
     message_parts = []
@@ -172,11 +160,6 @@ def format_news_article(article: dict) -> str:
         # Escape special characters for Markdown
         title_escaped = escape_markdown(title)
         message_parts.append(f"*{title_escaped}*")
-    
-    # Source and date
-    metadata = []
-    if date_str:
-        metadata.append(f"🕐 {date_str}")
     
     # Description
     if description:
