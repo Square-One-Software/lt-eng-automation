@@ -364,8 +364,8 @@ def main() -> None:
     app.add_handler(vocab_conv_handler)
     app.add_handler(tuition_conv_handler)
 
-    app.add_handler(CommandHandler("start", lambda u, c: u.message.reply_text(
-        "Hi! Molly is here! Use /vocab to generate a review notes PDF."
+    app.add_handler(CommandHandler("start", lambda u, _: u.message.reply_text(
+        "Hi! Molly is here! What do you need help with today?"
     )))
     
     app.add_handler(CommandHandler("random", random_joke))

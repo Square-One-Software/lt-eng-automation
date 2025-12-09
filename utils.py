@@ -205,10 +205,10 @@ def format_multiple_news_articles(articles: list, max_articles: int = 3) -> list
 def fetch_news(NEWS_API_TOKEN):
     try:
         res = requests.get(
-            "https://api.thenewsapi.com/v1/news/top",
+            "https://api.thenewsapi.com/v1/news/all",
             params={
             'api_token': NEWS_API_TOKEN,
-            'categories': 'politics,tech,business',
+            'categories': 'tech,business,general',
             'language': "en",
             'limit': 3,
             },
