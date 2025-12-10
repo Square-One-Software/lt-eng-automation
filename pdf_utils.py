@@ -148,8 +148,8 @@ def generate_tuition_debit_note(
     filename: str,
     student_name: str,
     month: str,                     # e.g. "11月" or "9月"
-    lessons: list,                  # List of dicts → see example below
-    lesson_desc: str,
+    lesson_data: list,                  # List of dicts → see example below
+    course_name: str,
     notes: str = None               # Optional notes (e.g. payment received message)
 ) -> None:
     """
@@ -194,8 +194,8 @@ def generate_tuition_debit_note(
     table_data = [
         ["Tuition Fees\n學費", "Payment\n付款狀態", "Lesson\n課堂狀態"]
     ]
-    for lesson in lessons:
-        desc = f"補堂 -- {lesson['makeup']} ({lesson['date']})" if lesson["makeup"] else f"{lesson_desc} ({lesson['date']}) - {lesson['amount']} HKD" 
+    for lesson in lesson_data:
+        desc = f"補堂 -- {lesson['makeup']} ({lesson['date']})" if lesson["makeup"] else f"{course_name} ({lesson['date']}) - {lesson['amount']} HKD" 
         row = [
             desc,
             lesson['payment'],
@@ -204,7 +204,7 @@ def generate_tuition_debit_note(
         table_data.append(row)
 
     # Add total row with proper spacing
-    total = reduce(lambda curr, next: curr + next, [int(lesson["amount"]) for lesson in lessons if lesson["makeup"] is None])
+    total = reduce(lambda curr, next: curr + next, [int(lesson["amount"]) for lesson in lesson_data if lesson["makeup"] is None])
     table_data.append(["Total 總數", "", f"${total:,} HKD"])
 
     # 6. Table styling with fixed borders

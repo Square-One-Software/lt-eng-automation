@@ -262,8 +262,8 @@ class TuitionNotesGenerator(QMainWindow):
             self.uploaded_files.append(filename)
             self.update_file_list()
             cleaned_filename = filename.split("/")[-1] # last part of the file full path
-            tuition_data, course_code, student_name, month, month_name = parse_tuition_file(cleaned_filename)
-            self.add_tuition_record(course_code, tuition_data, student_name, month, month_name)
+            lesson_data, course_name, student_name, month, month_name = parse_tuition_file(cleaned_filename)
+            self.add_tuition_record(course_name, lesson_data, student_name, month, month_name)
             self.update_status(f"Added and Processed: {os.path.basename(filename)}", "success")
             
     def upload_multiple_files(self):
@@ -329,11 +329,11 @@ class TuitionNotesGenerator(QMainWindow):
     def get_notes_content(self):
         return self.notes_text.toPlainText().strip()
 
-    def add_tuition_record(self, course_code, tuition_data, student_name, month, month_name):
+    def add_tuition_record(self, course_name, lesson_data, student_name, month, month_name):
         tuition_record = {
             "id": len(self.tuition_records),
-            "course_code": course_code,
-            "tuition_data": tuition_data,
+            "course_name": course_name,
+            "lesson_data": lesson_data,
             "student_name": student_name,
             "month": month,
             "month_name": month_name
@@ -348,12 +348,15 @@ class TuitionNotesGenerator(QMainWindow):
         notes = self.get_notes_content()
         
         self.progress_bar.setVisible(True)
-        self.progress_bar.setRange(0, 0)  # Indeterminate
+        current, max = 0, len(self.uploaded_files)
+        self.progress_bar.setRange(current, max * 100)  # Indeterminate
         self.update_status("Generating invoices...", "processing")
         for record in self.tuition_records:
-            _, course_desc, tuition_data, student_name, month, month_name  = record.values()
+            _, course_name, lesson_data, student_name, month, month_name  = record.values()
             file_name = f"TuitionFeeDebitNote_{student_name}_{month_name}_{self.current_year}.pdf"
-            generate_tuition_debit_note(file_name, student_name, month, tuition_data, course_desc, notes)
+            generate_tuition_debit_note(filename=file_name, student_name=student_name, month=f"{month}月", lesson_data=lesson_data, course_name=course_name, notes=notes)
+            current += 1
+        
         self.update_status("Successfully generated tuition notes", "success")
         return 
         

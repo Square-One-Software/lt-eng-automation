@@ -33,8 +33,8 @@ def main():
             filename=file_name,
             student_name=student_name,
             month=f"{month}月",
-            lessons=lesson_data,
-            lesson_desc=course_desc,
+            lesson_data=lesson_data,
+            course_name=course_desc,
             notes=note_data
         )
         tuition_note_dir = "tuition_notes"

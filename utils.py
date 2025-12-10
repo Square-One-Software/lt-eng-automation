@@ -57,8 +57,8 @@ def parse_tuition_file(file):
     
         with open(file_path, "r") as f:
             reader = csv.DictReader(f)
-            tuition_data = [{key: TUITION_SCHEMA.get(val, val) for (key, val) in row.items()} for row in reader]
-        return tuition_data, TUITION_SCHEMA[course_code], student_name, month, month_name
+            lesson_data = [{key: TUITION_SCHEMA.get(val, val) for (key, val) in row.items()} for row in reader]
+        return lesson_data, TUITION_SCHEMA[course_code], student_name, month, month_name
     except FileNotFoundError as e:
         print(f"Error: {e}")
         raise
