@@ -59,12 +59,13 @@ class TuitionNotesGenerator(QMainWindow):
         title = QLabel("📄 Tuition Invoice Generator")
         title.setFont(QFont("Helvetica", 18, QFont.Bold))
         title.setAlignment(Qt.AlignCenter)
+        title.setStyleSheet("color: black;")
         header_layout.addWidget(title)
         
         subtitle = QLabel("Upload CSV files and generate professional invoices")
         subtitle.setFont(QFont("Helvetica", 10))
         subtitle.setAlignment(Qt.AlignCenter)
-        subtitle.setStyleSheet("color: #7f8c8d;")
+        subtitle.setStyleSheet("color: black;")
         header_layout.addWidget(subtitle)
         
         layout.addLayout(header_layout)
@@ -156,15 +157,15 @@ class TuitionNotesGenerator(QMainWindow):
         template_label.setFont(QFont("Helvetica", 9))
         template_layout.addWidget(template_label)
         
-        template_btn1 = QPushButton("Payment Due")
+        template_btn1 = QPushButton("Payment Received")
         template_btn1.clicked.connect(
-            lambda: self.insert_template("Payment due within 7 days.")
+            lambda: self.insert_template(f"Payment received on xx-xx-{self.current_year}. 學費已於 {self.current_year} 年 xx 月 xx 日全數繳交。")
         )
         template_layout.addWidget(template_btn1)
         
         template_btn2 = QPushButton("Thank You")
         template_btn2.clicked.connect(
-            lambda: self.insert_template("Thank you for your continued trust!")
+            lambda: self.insert_template("Thank you!")
         )
         template_layout.addWidget(template_btn2)
         
