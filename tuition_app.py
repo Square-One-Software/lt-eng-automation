@@ -5,12 +5,17 @@ from PyQt5.QtWidgets import (QApplication, QMainWindow, QWidget, QVBoxLayout,
                              QSizePolicy)
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QFont
-import os
+from utils import parse_tuition_file
+from pdf_utils import generate_tuition_debit_note
+from datetime import datetime
+import os 
 
 class TuitionNotesGenerator(QMainWindow):
     def __init__(self):
         super().__init__()
         self.uploaded_files = []
+        self.tuition_records = []
+        self.current_year = datetime.now().year
         self.init_ui()
         
     def init_ui(self):
@@ -256,7 +261,10 @@ class TuitionNotesGenerator(QMainWindow):
         if filename:
             self.uploaded_files.append(filename)
             self.update_file_list()
-            self.update_status(f"Added: {os.path.basename(filename)}", "success")
+            cleaned_filename = filename.split("/")[-1] # last part of the file full path
+            tuition_data, course_code, student_name, month, month_name = parse_tuition_file(cleaned_filename)
+            self.add_tuition_record(course_code, tuition_data, student_name, month, month_name)
+            self.update_status(f"Added and Processed: {os.path.basename(filename)}", "success")
             
     def upload_multiple_files(self):
         filenames, _ = QFileDialog.getOpenFileNames(
@@ -320,9 +328,19 @@ class TuitionNotesGenerator(QMainWindow):
         
     def get_notes_content(self):
         return self.notes_text.toPlainText().strip()
+
+    def add_tuition_record(self, course_code, tuition_data, student_name, month, month_name):
+        tuition_record = {
+            "id": len(self.tuition_records),
+            "course_code": course_code,
+            "tuition_data": tuition_data,
+            "student_name": student_name,
+            "month": month,
+            "month_name": month_name
+        }
+        return self.tuition_records.append(tuition_record)
         
     def generate_invoices(self):
-        # TODO: Implement your generation logic
         if not self.uploaded_files:
             self.update_status("No files to process", "error")
             return
@@ -332,8 +350,12 @@ class TuitionNotesGenerator(QMainWindow):
         self.progress_bar.setVisible(True)
         self.progress_bar.setRange(0, 0)  # Indeterminate
         self.update_status("Generating invoices...", "processing")
-        
-        # TODO: Add your logic here
+        for record in self.tuition_records:
+            _, course_desc, tuition_data, student_name, month, month_name  = record.values()
+            file_name = f"TuitionFeeDebitNote_{student_name}_{month_name}_{self.current_year}.pdf"
+            generate_tuition_debit_note(file_name, student_name, month, tuition_data, course_desc, notes)
+        self.update_status("Successfully generated tuition notes", "success")
+        return 
         
     def preview_invoices(self):
         # TODO: Implement preview
