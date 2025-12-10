@@ -180,16 +180,16 @@ class TuitionNotesGenerator(QMainWindow):
         
         button_layout.addStretch()
         
-        self.preview_btn = QPushButton("👁️ Preview")
+        self.preview_btn = QPushButton("Preview")
         self.preview_btn.clicked.connect(self.preview_invoices)
         self.preview_btn.setEnabled(False)
         button_layout.addWidget(self.preview_btn)
         
-        self.generate_btn = QPushButton("✨ Generate Invoices")
+        self.generate_btn = QPushButton("Generate Invoices")
         self.generate_btn.clicked.connect(self.generate_invoices)
         self.generate_btn.setEnabled(False)
         self.generate_btn.setStyleSheet(
-            "QPushButton { font-weight: bold; padding: 12px 24px; }"
+            "QPushButton { font-weight: bold; padding: 12px 24px; color: black; }"
         )
         button_layout.addWidget(self.generate_btn)
         
@@ -213,9 +213,9 @@ class TuitionNotesGenerator(QMainWindow):
             }
             QPushButton {
                 background-color: #3498db;
-                color: white;
+                color: black;
                 border: none;
-                padding: 8px 16px;
+                padding: 12px 24px;
                 border-radius: 4px;
                 font-size: 10pt;
             }
@@ -224,6 +224,8 @@ class TuitionNotesGenerator(QMainWindow):
             }
             QPushButton:disabled {
                 background-color: #bdc3c7;
+                padding: 12px 24px;
+                color: black;
             }
             QListWidget {
                 background-color: #ecf0f1;
@@ -269,6 +271,7 @@ class TuitionNotesGenerator(QMainWindow):
             
     def remove_selected_file(self):
         current_row = self.file_list.currentRow()
+        print(current_row)
         if current_row >= 0:
             removed_file = self.uploaded_files.pop(current_row)
             self.update_file_list()
@@ -296,7 +299,7 @@ class TuitionNotesGenerator(QMainWindow):
         
     def on_file_select(self):
         current_row = self.file_list.currentRow()
-        if current_row >= 0:
+        if current_row > 0:
             file_path = self.uploaded_files[current_row]
             file_size = os.path.getsize(file_path)
             size_kb = file_size / 1024
