@@ -232,6 +232,7 @@ class TuitionNotesGenerator(QMainWindow):
                 border: 2px solid #bdc3c7;
                 border-radius: 4px;
                 padding: 5px;
+                color: black;
             }
             QTextEdit {
                 background-color: #ecf0f1;
@@ -239,6 +240,7 @@ class TuitionNotesGenerator(QMainWindow):
                 border-radius: 4px;
                 padding: 10px;
                 font-size: 10pt;
+                color: black;
             }
         """)
         
@@ -271,7 +273,6 @@ class TuitionNotesGenerator(QMainWindow):
             
     def remove_selected_file(self):
         current_row = self.file_list.currentRow()
-        print(current_row)
         if current_row >= 0:
             removed_file = self.uploaded_files.pop(current_row)
             self.update_file_list()
