@@ -77,6 +77,7 @@ class TuitionNotesGenerator(QMainWindow):
         section_label = QLabel("📂 CSV Files")
         section_label.setFont(QFont("Helvetica", 12, QFont.Bold))
         header_layout.addWidget(section_label)
+        section_label.setStyleSheet("color: black")
         
         self.file_count_label = QLabel("(0 files)")
         self.file_count_label.setStyleSheet("color: #95a5a6;")
@@ -112,7 +113,7 @@ class TuitionNotesGenerator(QMainWindow):
         # File actions
         file_actions_layout = QHBoxLayout()
         
-        remove_btn = QPushButton("➖ Remove Selected")
+        remove_btn = QPushButton("X Remove Selected")
         remove_btn.clicked.connect(self.remove_selected_file)
         file_actions_layout.addWidget(remove_btn)
         
@@ -130,6 +131,7 @@ class TuitionNotesGenerator(QMainWindow):
         
         section_label = QLabel("📝 Additional Notes (Optional)")
         section_label.setFont(QFont("Helvetica", 12, QFont.Bold))
+        section_label.setStyleSheet("color: black")
         header_layout.addWidget(section_label)
         
         header_layout.addStretch()
@@ -152,7 +154,6 @@ class TuitionNotesGenerator(QMainWindow):
         
         # Quick templates
         template_layout = QHBoxLayout()
-        
         template_label = QLabel("Quick Templates:")
         template_label.setFont(QFont("Helvetica", 9))
         template_layout.addWidget(template_label)
@@ -169,8 +170,6 @@ class TuitionNotesGenerator(QMainWindow):
         )
         template_layout.addWidget(template_btn2)
         
-        template_layout.addStretch()
-        
         clear_notes_btn = QPushButton("Clear")
         clear_notes_btn.clicked.connect(self.clear_notes)
         template_layout.addWidget(clear_notes_btn)
@@ -180,9 +179,9 @@ class TuitionNotesGenerator(QMainWindow):
     def create_action_buttons(self, layout):
         button_layout = QHBoxLayout()
         
-        settings_btn = QPushButton("⚙️ Settings")
-        settings_btn.clicked.connect(self.open_settings)
-        button_layout.addWidget(settings_btn)
+        # settings_btn = QPushButton("⚙️ Settings")
+        # settings_btn.clicked.connect(self.open_settings)
+        # button_layout.addWidget(settings_btn)
         
         button_layout.addStretch()
         
