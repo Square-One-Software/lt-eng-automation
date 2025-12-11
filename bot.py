@@ -26,6 +26,7 @@ from utils import parse_tuition_file, format_multiple_news_articles, fetch_news
 load_dotenv()
 TG_BOT_TOKEN = getenv("TG_BOT_TOKEN")
 NEWS_API_TOKEN = getenv("NEWS_API_TOKEN")
+MASTER_ID = getenv("MASTER_ID")
 
 # Enable logging
 logging.basicConfig(
@@ -39,19 +40,38 @@ logger = logging.getLogger(__name__)
 ASKING_FOR_NAME, WAITING_FOR_LIST = range(2)
 WAITING_FOR_FILE, WAITING_FOR_NOTES = range(2)
 
+def auth(id: int) -> bool:
+    return id == int(MASTER_ID)
+
+async def start_handler(update: Update, _: ContextTypes.DEFAULT_TYPE) -> int:
+    chat_id = update.effective_chat.id
+    if auth(chat_id):
+        await update.message.reply_text("Hi! Molly is here! What do you need help with today?")
+    else:
+        await update.message.reply_text("This's Molly. Who are you? I don't think I know you...")
+    return ConversationHandler.END
+
 async def tuition_note_start(update: Update, _: ContextTypes.DEFAULT_TYPE) -> int:
-    await update.message.reply_text(
-        "Hi! 1) Send me the file for the student first~\n\n"
-        "Send /cancel to stop ^.^",
-    )
-    return WAITING_FOR_FILE
+    if auth(update.effective_chat.id):
+        await update.message.reply_text(
+            "Hi! 1) Send me the file for the student first~\n\n"
+            "Send /cancel to stop ^.^",
+        )
+        return WAITING_FOR_FILE
+    else:
+        await update.message.reply_text("I don't know what you're talking about =.=")
+        return ConversationHandler.END
 
 async def vocab_start(update: Update, _: ContextTypes.DEFAULT_TYPE) -> int:
-    await update.message.reply_text(
-        "Hi! 1) Send me the name of the student first~\n\n"
-        "Send /cancel to stop ^.^",
-    )
-    return ASKING_FOR_NAME 
+    if auth(update.effective_chat.id):
+        await update.message.reply_text(
+            "Hi! 1) Send me the name of the student first~\n\n"
+            "Send /cancel to stop ^.^",
+        )
+        return ASKING_FOR_NAME 
+    else:
+        await update.message.reply_text("Hey, Molly doesn't take order from stranger!")
+        return ConversationHandler.END
 
 async def receive_file(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     """
@@ -302,6 +322,10 @@ async def random_joke(update: Update, _: ContextTypes.DEFAULT_TYPE) -> int:
 
 async def send_news(update: Update, _: ContextTypes.DEFAULT_TYPE) -> int:
     try:
+        if not auth(update.effective_chat.id):
+            await update.message.reply_text("Why don't you search the news yourself!")
+            return ConversationHandler.END
+
         articles = fetch_news(NEWS_API_TOKEN)
         if not articles:
             await update.message.reply_text("📰 No news articles found at the moment.")
@@ -364,9 +388,7 @@ def main() -> None:
     app.add_handler(vocab_conv_handler)
     app.add_handler(tuition_conv_handler)
 
-    app.add_handler(CommandHandler("start", lambda u, _: u.message.reply_text(
-        "Hi! Molly is here! What do you need help with today?"
-    )))
+    app.add_handler(CommandHandler("start", start_handler))
     
     app.add_handler(CommandHandler("random", random_joke))
     app.add_handler(CommandHandler("news", send_news))
