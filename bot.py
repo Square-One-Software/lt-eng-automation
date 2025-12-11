@@ -18,7 +18,7 @@ from telegram.ext import (
     MessageHandler,
     filters,
 )
-from requests.exceptions import HTTPError, ConnectionError, RequestException
+from requests.exceptions import ConnectionError 
 from pdf_utils import generate_vocabulary_pdf, generate_tuition_debit_note
 from utils import parse_tuition_file, format_multiple_news_articles, fetch_news
 
