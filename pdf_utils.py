@@ -230,7 +230,8 @@ def generate_tuition_debit_note(
             fontSize=10,
             leading=14
         )
-        elements.append(Paragraph(notes, note_style))
+        formatted_notes = notes.replace('\\n', '<br/>')
+        elements.append(Paragraph(formatted_notes, note_style))
 
     # Build PDF
     doc.build(elements)
