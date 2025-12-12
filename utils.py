@@ -109,10 +109,11 @@ async def create_vocabulary_table(data):
     """Create a table for the PDF from vocabulary data."""
     table_data = [['Vocabulary (Part of Speech)', 'Chinese Meaning']]
     translator = Translator()
-    tasks = [translate_to_chinese(translator, vocab) for vocab, _ in data]
+    tasks = [translate_to_chinese(translator, vocab) for vocab, _, _ in data]
     translations = await asyncio.gather(*tasks)
-    for (vocab, pos), chinese in zip(data, translations):
-        table_data.append([f"{vocab} ({pos})", chinese])
+    for (vocab, pos, custom_meaning), chinese in zip(data, translations):
+        meaning = custom_meaning if custom_meaning else chinese
+        table_data.append([f"{vocab} ({pos})", meaning])
     return table_data
 
 def escape_markdown(text: str) -> str:

@@ -270,13 +270,13 @@ async def receive_list(update: Update, context: ContextTypes.DEFAULT_TYPE) -> in
         for pair in pairs:
             if len(pair) < 2:
                 raise ValueError(f"This pair of word has the word or pos missing: {pair}")
-            word, pos_raw  = pair
+            word, pos_raw, custom_meaning = pair
             if len(word) == 0 or len(pos_raw) == 0:
                 raise ValueError("Empty word or POS")
             # Normalise POS (v → verb, n → noun, adj → adjective, adv → adverb)
             pos_map = {"v": "verb", "n": "noun", "adj": "adjective", "adv": "adverb"}
             pos = pos_map.get(pos_raw.lower(), pos_raw)  # fallback to original if unknown
-            vocab_data.append((word.lower(), pos))   # Chinese meaning will be added later
+            vocab_data.append((word.lower(), pos, custom_meaning))   # Chinese meaning will be added later
     except Exception as e:
         await update.message.reply_text(
             f"Invalid format. Please try again.\nError: {e}\n\n"
