@@ -264,7 +264,7 @@ async def receive_list(update: Update, context: ContextTypes.DEFAULT_TYPE) -> in
     text = update.message.text.strip()
     # ----  Parse the input string ----
     try:
-        pairs = [item.strip().split(",") for item in text.split(";")]
+        pairs = [item.strip().split(",") for item in text.split(";") if item]
         vocab_data = []
         
         for pair in pairs:
