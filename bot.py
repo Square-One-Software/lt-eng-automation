@@ -266,7 +266,6 @@ async def receive_list(update: Update, context: ContextTypes.DEFAULT_TYPE) -> in
     try:
         pairs = [item.strip().split(",") for item in text.split(";") if item]
         vocab_data = []
-        
         for pair in pairs:
             if len(pair) < 2:
                 raise ValueError(f"This pair of word has the word or pos missing: {pair}")
