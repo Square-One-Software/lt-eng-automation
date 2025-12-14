@@ -251,9 +251,9 @@ async def receive_name(update: Update, context: ContextTypes.DEFAULT_TYPE) -> in
     await update.message.reply_text(
         f"Got it! This note is for {text} n.n \n\n" 
         "Now send me the vocabulary list in this exact format:\n\n"
-        "`word1,pos;word2,pos;word3,pos`\n\n"
+        "`word1,pos,(customised meaning [optional]);word2,pos,(customised meaning [optional]);word3,pos,(customised meaning [optional])`\n\n"
         "Example:\n"
-        "`suspend,v;mourn,v;tempest,n;infuriate,v;escalate,v;belligerent,adj;spat,n;allies,n`\n\n"
+        "`suspend,v;mourn,v;tempest,n,暴風雨;infuriate,v;escalate,v;belligerent,adj,好戰的`\n\n"
         "Send /cancel to stop ^.^",
         parse_mode="Markdown",
     ) 
