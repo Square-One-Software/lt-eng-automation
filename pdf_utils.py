@@ -8,7 +8,7 @@ from reportlab.pdfbase.ttfonts import TTFont
 from reportlab.pdfbase.cidfonts import UnicodeCIDFont
 from reportlab.lib.enums import TA_CENTER, TA_LEFT
 from datetime import datetime
-from utils import create_vocabulary_table, week_of_month
+from utils import create_vocabulary_table, week_of_month, parse_tuition_file
 from functools import reduce
 import os
 
@@ -143,14 +143,13 @@ def set_tuition_debit_note_style(chinese_font):
 
     return styles, table_style
 
-
 def generate_tuition_debit_note(
     filename: str,
     student_name: str,
-    month: str,                     # e.g. "11月" or "9月"
+    months: list,                     # e.g. [11, 10]
     lesson_data: list,                  # List of dicts → see example below
     course_name: str,
-    notes: str = None               # Optional notes (e.g. payment received message)
+    notes: list = []               # Optional notes (e.g. payment received message)
 ) -> None:
     """
     Generates a Tuition Fee Debit Note that looks identical to your PDF.
@@ -165,7 +164,7 @@ def generate_tuition_debit_note(
     if not is_nested:
         lesson_data = [lesson_data]
     
-    for page_num, page_lessons in enumerate(lesson_data, start=1):
+    for page_num, page_lessons in enumerate(lesson_data, start=0):
         # 1. Header
         header = Paragraph("Louis English Tutorial Lesson", styles['TitleCenter'])
         elements.append(header)
@@ -193,7 +192,7 @@ def generate_tuition_debit_note(
             alignment=TA_LEFT,
             spaceAfter=8
         )
-        elements.append(Paragraph(month, month_style))
+        elements.append(Paragraph(f'{months[page_num]}月', month_style))
         elements.append(Spacer(1, 12))
          # 1. Header with student name and page number
         header_style = ParagraphStyle(
@@ -229,7 +228,7 @@ def generate_tuition_debit_note(
                 table_data.append(row)
 
             # Add total row with proper spacing
-            total = reduce(lambda curr, next: curr + next, [int(lesson["amount"]) for lesson in lesson_data if lesson["makeup"] is None])
+            total = reduce(lambda curr, next: curr + next, [int(lesson["amount"]) for lesson in page_lessons if lesson["makeup"] is None])
             table_data.append(["Total 總數", "", f"${total:,} HKD"])
 
             # 6. Table styling with fixed borders
@@ -255,7 +254,7 @@ def generate_tuition_debit_note(
                 fontSize=10,
                 leading=14
             )
-            formatted_notes = notes.replace('\\n', '<br/>')
+            formatted_notes = notes[page_num].replace('\\n', '<br/>')
             elements.append(Paragraph(formatted_notes, note_style))
         
                 # Add page break if not the last page
@@ -265,3 +264,8 @@ def generate_tuition_debit_note(
     # Build PDF
     doc.build(elements)
     print(f"Tuition debit note generated: {filename}")
+
+
+# testing
+if __name__ == "__main__":
+    print("Testing..")
