@@ -16,7 +16,7 @@ def parse_vocab_file(file):
     except IOError as error:
         print(error)
 
-def parse_tuition_file(file):
+def parse_tuition_file(files: list[str] | str):
     TUITION_SCHEMA = {
         "JS": "1 對 1 初中英文面授課",
         "SS": "1 對 1 DSE 英文面授課",
@@ -29,36 +29,45 @@ def parse_tuition_file(file):
         "C": "Completed 完成",
         "R": "Rescheduled 調堂"
     }
-    
+
+    if not isinstance(files, list):
+        files = [files]
+
+    lesson_data = []
+    months = []
     try:
-        tuition_data_dir = "tuition_data"
-        data_dir_path = Path(tuition_data_dir)
-        if not data_dir_path.exists():
-            os.makedirs(tuition_data_dir)
+        for file in files:
+            tuition_data_dir = "tuition_data"
+            data_dir_path = Path(tuition_data_dir)
+            if not data_dir_path.exists():
+                os.makedirs(tuition_data_dir)
 
-        file_path = os.path.join(tuition_data_dir, file)
-        if not os.path.exists(file_path):
-            raise FileNotFoundError(f"File not found: {file}")
+            file_path = os.path.join(tuition_data_dir, file)
+            if not os.path.exists(file_path):
+                raise FileNotFoundError(f"File not found: {file}")
 
-        name_parts = file.split(".")[0].split("-") 
+            name_parts = file.split(".")[0].split("-") 
+            
+            if len(name_parts) != 3:
+                raise ValueError(f"Invalid file name error. Expected 'COURSECODE-NAME-Month.csv', but got {file}")
+            
+            course_code, student_name, month = name_parts 
+            
+            if "/" in course_code:
+                course_code = course_code.split("/")[1]
+
+            if course_code not in TUITION_SCHEMA:
+                raise ValueError(f"Invalid Course Code: {course_code} is not a valid course code")
+
+            months.append(int(month))
+
+            with open(file_path, "r") as f:
+                reader = csv.DictReader(f)
+                lesson_data.append([{key: TUITION_SCHEMA.get(val, val) for (key, val) in row.items()} for row in reader])
         
-        if len(name_parts) != 3:
-            raise ValueError(f"Invalid file name error. Expected 'COURSECODE-NAME-Month.csv', but got {file}")
-        
-        course_code, student_name, month = name_parts 
-        
-        if "/" in course_code:
-            course_code = course_code.split("/")[1]
-
-        month_name = calendar.month_abbr[int(month)]
-
-        if course_code not in TUITION_SCHEMA:
-            raise ValueError(f"Invalid Course Code: {course_code} is not a valid course code")
-    
-        with open(file_path, "r") as f:
-            reader = csv.DictReader(f)
-            lesson_data = [{key: TUITION_SCHEMA.get(val, val) for (key, val) in row.items()} for row in reader]
-        return lesson_data, TUITION_SCHEMA[course_code], student_name, month, month_name
+        months = sorted(months, reverse=True)
+        month_name = calendar.month_abbr[months[0]]
+        return lesson_data, TUITION_SCHEMA[course_code], student_name, months, month_name
     except FileNotFoundError as e:
         print(f"Error: {e}")
         raise
