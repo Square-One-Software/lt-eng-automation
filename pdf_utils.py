@@ -268,4 +268,4 @@ def generate_tuition_debit_note(
 
 # testing
 if __name__ == "__main__":
-    print("Testing..")
+    print("Testing...")
