@@ -35,8 +35,10 @@ def parse_tuition_file(files: list[str] | str):
 
     lesson_data = []
     months = []
+    sorted_files = sorted(files, key=lambda x: int(x.split("-")[-1].split(".")[0]), reverse=True)
+    
     try:
-        for file in files:
+        for file in sorted_files:
             tuition_data_dir = "tuition_data"
             data_dir_path = Path(tuition_data_dir)
             if not data_dir_path.exists():
