@@ -1,6 +1,6 @@
 from reportlab.lib import colors
 from reportlab.lib.pagesizes import letter, A4
-from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, HRFlowable, Spacer
+from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, HRFlowable, Spacer, PageBreak
 from reportlab.lib.units import inch
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.pdfbase import pdfmetrics
@@ -160,78 +160,107 @@ def generate_tuition_debit_note(
     doc = SimpleDocTemplate(filename, pagesize=A4, topMargin=0.8*inch, bottomMargin=0.8*inch)
     elements = []
     styles, table_style = set_tuition_debit_note_style(chinese_font)
-    # 1. Header
-    header = Paragraph("Louis English Tutorial Lesson", styles['TitleCenter'])
-    elements.append(header)
-    elements.append(Spacer(1, 6))
 
-    # 2. Main title (bilingual)
-    title = Paragraph("Tuition Fee Debit Note<br/><br/>學費單", styles['BilingualTitle'])
-    elements.append(title)
-
-    # 3. Student & Tutor info
-    info = Paragraph(
-        f"Student Name 學生姓名: <b>{student_name}</b><br/>"
-        f"Tutor Name 導師姓名: <b>Louis Tsang</b>",
-        styles['ChineseNormal']
-    )
-    elements.append(info)
-    elements.append(Spacer(1, 12))
-
-    # 4. Month
-    month_style = ParagraphStyle(
-        name='Month',
-        fontName=chinese_font,
-        fontSize=12,
-        leading=10,
-        alignment=TA_LEFT,
-        spaceAfter=8
-    )
-    elements.append(Paragraph(month, month_style))
-    elements.append(Spacer(1, 12))
-
-    # 5. Table data
-    table_data = [
-        ["Tuition Fees\n學費", "Payment\n付款狀態", "Lesson\n課堂狀態"]
-    ]
-    for lesson in lesson_data:
-        desc = f"補堂 -- {lesson['makeup']} ({lesson['date']})" if lesson["makeup"] else f"{course_name} ({lesson['date']}) - {lesson['amount']} HKD" 
-        row = [
-            desc,
-            lesson['payment'],
-            lesson['status']
-        ]
-        table_data.append(row)
-
-    # Add total row with proper spacing
-    total = reduce(lambda curr, next: curr + next, [int(lesson["amount"]) for lesson in lesson_data if lesson["makeup"] is None])
-    table_data.append(["Total 總數", "", f"${total:,} HKD"])
-
-    # 6. Table styling with fixed borders
-    table = Table(table_data, colWidths=[3.8*inch, 1.3*inch, 1.3*inch])
+    is_nested = lesson_data and isinstance(lesson_data[0], list)
+    if not is_nested:
+        lesson_data = [lesson_data]
     
-    table.setStyle(table_style)
-    elements.append(table)
+    for page_num, page_lessons in enumerate(lesson_data, start=1):
+        # 1. Header
+        header = Paragraph("Louis English Tutorial Lesson", styles['TitleCenter'])
+        elements.append(header)
+        elements.append(Spacer(1, 6))
 
-    # 7. Optional Notes
-    if notes:
-        elements.append(Spacer(1, 20))
-        note_header = ParagraphStyle(
-            name='NoteHeader',
+        # 2. Main title (bilingual)
+        title = Paragraph("Tuition Fee Debit Note<br/><br/>學費單", styles['BilingualTitle'])
+        elements.append(title)
+
+        # 3. Student & Tutor info
+        info = Paragraph(
+            f"Student Name 學生姓名: <b>{student_name}</b><br/>"
+            f"Tutor Name 導師姓名: <b>Louis Tsang</b>",
+            styles['ChineseNormal']
+        )
+        elements.append(info)
+        elements.append(Spacer(1, 12))
+
+        # 4. Month
+        month_style = ParagraphStyle(
+            name='Month',
             fontName=chinese_font,
             fontSize=12,
-            leading=16,
-            spaceAfter=6
+            leading=10,
+            alignment=TA_LEFT,
+            spaceAfter=8
         )
-        elements.append(Paragraph("<b>Notes 備註</b>", note_header))
-        note_style = ParagraphStyle(
-            name='NoteBody',
+        elements.append(Paragraph(month, month_style))
+        elements.append(Spacer(1, 12))
+         # 1. Header with student name and page number
+        header_style = ParagraphStyle(
+            name='Header',
             fontName=chinese_font,
-            fontSize=10,
-            leading=14
+            fontSize=18,
+            leading=22,
+            alignment=TA_CENTER,
+            spaceAfter=12
         )
-        formatted_notes = notes.replace('\\n', '<br/>')
-        elements.append(Paragraph(formatted_notes, note_style))
+        
+        # if len(lesson_data) > 1:
+        #     header_text = f"<b>{student_name} - Page {page_num}/{len(lesson_data)}</b>"
+        # else:
+        #     header_text = f"<b>{student_name}</b>"
+        
+        # elements.append(Paragraph(header_text, header_style))
+        # elements.append(Spacer(1, 10))
+
+        if page_lessons:
+            # 5. Table data
+            table_data = [
+                ["Tuition Fees\n學費", "Payment\n付款狀態", "Lesson\n課堂狀態"]
+            ]
+
+            for lesson in page_lessons:
+                desc = f"補堂 -- {lesson['makeup']} ({lesson['date']})" if lesson["makeup"] else f"{course_name} ({lesson['date']}) - {lesson['amount']} HKD" 
+                row = [
+                    desc,
+                    lesson['payment'],
+                    lesson['status']
+                ]
+                table_data.append(row)
+
+            # Add total row with proper spacing
+            total = reduce(lambda curr, next: curr + next, [int(lesson["amount"]) for lesson in lesson_data if lesson["makeup"] is None])
+            table_data.append(["Total 總數", "", f"${total:,} HKD"])
+
+            # 6. Table styling with fixed borders
+            table = Table(table_data, colWidths=[3.8*inch, 1.3*inch, 1.3*inch])
+            
+            table.setStyle(table_style)
+            elements.append(table)
+
+        # 7. Optional Notes
+        if notes:
+            elements.append(Spacer(1, 20))
+            note_header = ParagraphStyle(
+                name='NoteHeader',
+                fontName=chinese_font,
+                fontSize=12,
+                leading=16,
+                spaceAfter=6
+            )
+            elements.append(Paragraph("<b>Notes 備註</b>", note_header))
+            note_style = ParagraphStyle(
+                name='NoteBody',
+                fontName=chinese_font,
+                fontSize=10,
+                leading=14
+            )
+            formatted_notes = notes.replace('\\n', '<br/>')
+            elements.append(Paragraph(formatted_notes, note_style))
+        
+                # Add page break if not the last page
+        if page_num < len(lesson_data):
+            elements.append(PageBreak())
 
     # Build PDF
     doc.build(elements)
