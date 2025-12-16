@@ -14,7 +14,7 @@ class TuitionNotesGenerator(QMainWindow):
     def __init__(self):
         super().__init__()
         self.uploaded_files = []
-        self.tuition_records = []
+        self.tuition_record = None
         self.current_year = datetime.now().year
         self.init_ui()
         
@@ -330,14 +330,13 @@ class TuitionNotesGenerator(QMainWindow):
 
     def add_tuition_record(self, course_name, lesson_data, student_name, month, month_name):
         tuition_record = {
-            "id": len(self.tuition_records),
             "course_name": course_name,
             "lesson_data": lesson_data,
             "student_name": student_name,
             "month": month,
             "month_name": month_name
         }
-        self.tuition_records = [tuition_record]
+        self.tuition_record = tuition_record
         
     def generate_invoices(self):
         if not self.uploaded_files:
@@ -350,11 +349,10 @@ class TuitionNotesGenerator(QMainWindow):
         current, max = 0, len(self.uploaded_files)
         self.progress_bar.setRange(current, max * 100)  # Indeterminate
         self.update_status("Generating invoices...", "processing")
-        for record in self.tuition_records:
-            _, course_name, lesson_data, student_name, months, month_name  = record.values()
-            file_name = f"TuitionFeeDebitNote_{student_name}_{month_name}_{self.current_year}.pdf"
-            generate_tuition_debit_note(filename=file_name, student_name=student_name, months=months, lesson_data=lesson_data, course_name=course_name, notes=notes)
-            current += 1
+        course_name, lesson_data, student_name, months, month_name  = self.tuition_record.values()
+        file_name = f"TuitionFeeDebitNote_{student_name}_{month_name}_{self.current_year}.pdf"
+        generate_tuition_debit_note(filename=file_name, student_name=student_name, months=months, lesson_data=lesson_data, course_name=course_name, notes=notes)
+        current += 1
         
         self.update_status("Successfully generated tuition notes", "success")
         return 
