@@ -326,7 +326,7 @@ class TuitionNotesGenerator(QMainWindow):
         self.notes_text.clear()
         
     def get_notes_content(self):
-        return self.notes_text.toPlainText().strip()
+        return self.notes_text.toPlainText().strip().split("|")
 
     def add_tuition_record(self, course_name, lesson_data, student_name, month, month_name):
         tuition_record = {
