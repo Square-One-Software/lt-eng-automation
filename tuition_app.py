@@ -147,7 +147,8 @@ class TuitionNotesGenerator(QMainWindow):
         self.notes_text.setMinimumHeight(120)
         self.notes_text.setPlaceholderText(
             "Enter any additional notes or instructions for the invoice...\n"
-            "For example: payment terms, special discounts, or reminders."
+            "For example: payment terms, special discounts, or reminders.\n"
+            "Use | to separate notes for each page."
         )
         self.notes_text.textChanged.connect(self.update_char_count)
         layout.addWidget(self.notes_text)
@@ -169,6 +170,12 @@ class TuitionNotesGenerator(QMainWindow):
             lambda: self.insert_template("Thank you!")
         )
         template_layout.addWidget(template_btn2)
+
+        template_btn3 = QPushButton("Page Break")
+        template_btn3.clicked.connect(
+            lambda: self.insert_template("|")
+        )
+        template_layout.addWidget(template_btn3)
         
         clear_notes_btn = QPushButton("Clear")
         clear_notes_btn.clicked.connect(self.clear_notes)
