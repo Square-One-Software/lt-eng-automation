@@ -337,7 +337,7 @@ class TuitionNotesGenerator(QMainWindow):
             "month": month,
             "month_name": month_name
         }
-        return self.tuition_records.append(tuition_record)
+        self.tuition_records = [tuition_record]
         
     def generate_invoices(self):
         if not self.uploaded_files:
@@ -351,9 +351,9 @@ class TuitionNotesGenerator(QMainWindow):
         self.progress_bar.setRange(current, max * 100)  # Indeterminate
         self.update_status("Generating invoices...", "processing")
         for record in self.tuition_records:
-            _, course_name, lesson_data, student_name, month, month_name  = record.values()
+            _, course_name, lesson_data, student_name, months, month_name  = record.values()
             file_name = f"TuitionFeeDebitNote_{student_name}_{month_name}_{self.current_year}.pdf"
-            generate_tuition_debit_note(filename=file_name, student_name=student_name, month=f"{month}月", lesson_data=lesson_data, course_name=course_name, notes=notes)
+            generate_tuition_debit_note(filename=file_name, student_name=student_name, months=months, lesson_data=lesson_data, course_name=course_name, notes=notes)
             current += 1
         
         self.update_status("Successfully generated tuition notes", "success")
