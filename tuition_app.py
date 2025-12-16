@@ -261,8 +261,7 @@ class TuitionNotesGenerator(QMainWindow):
         if filename:
             self.uploaded_files.append(filename)
             self.update_file_list()
-            cleaned_filename = filename.split("/")[-1] # last part of the file full path
-            lesson_data, course_name, student_name, month, month_name = parse_tuition_file(cleaned_filename)
+            lesson_data, course_name, student_name, month, month_name = parse_tuition_file([file.split("/")[-1] for file in self.uploaded_files])
             self.add_tuition_record(course_name, lesson_data, student_name, month, month_name)
             self.update_status(f"Added and Processed: {os.path.basename(filename)}", "success")
             
