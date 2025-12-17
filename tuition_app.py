@@ -351,15 +351,10 @@ class TuitionNotesGenerator(QMainWindow):
             return
         
         notes = self.get_notes_content()
-        
-        self.progress_bar.setVisible(True)
-        current, max = 0, len(self.uploaded_files)
-        self.progress_bar.setRange(current, max * 100)  # Indeterminate
         self.update_status("Generating invoices...", "processing")
         course_name, lesson_data, student_name, months, month_name  = self.tuition_record.values()
         file_name = f"TuitionFeeDebitNote_{student_name}_{month_name}_{self.current_year}.pdf"
         generate_tuition_debit_note(filename=file_name, student_name=student_name, months=months, lesson_data=lesson_data, course_name=course_name, notes=notes)
-        current += 1
         
         self.update_status("Successfully generated tuition notes", "success")
         return 
