@@ -164,6 +164,9 @@ def generate_tuition_debit_note(
     if not is_nested:
         lesson_data = [lesson_data]
     
+    if len(notes) < len(lesson_data):
+        notes = notes + ["" for _ in range(len(lesson_data) - 1)]
+
     for page_num, page_lessons in enumerate(lesson_data, start=0):
         # 1. Header
         header = Paragraph("Louis English Tutorial Lesson", styles['TitleCenter'])
@@ -238,24 +241,23 @@ def generate_tuition_debit_note(
             elements.append(table)
 
         # 7. Optional Notes
-        if notes:
-            elements.append(Spacer(1, 20))
-            note_header = ParagraphStyle(
-                name='NoteHeader',
-                fontName=chinese_font,
-                fontSize=12,
-                leading=16,
-                spaceAfter=6
-            )
-            elements.append(Paragraph("<b>Notes 備註</b>", note_header))
-            note_style = ParagraphStyle(
-                name='NoteBody',
-                fontName=chinese_font,
-                fontSize=10,
-                leading=14
-            )
-            formatted_notes = notes[page_num].replace('\\n', '<br/>')
-            elements.append(Paragraph(formatted_notes, note_style))
+        elements.append(Spacer(1, 20))
+        note_header = ParagraphStyle(
+            name='NoteHeader',
+            fontName=chinese_font,
+            fontSize=12,
+            leading=16,
+            spaceAfter=6
+        )
+        elements.append(Paragraph("<b>Notes 備註</b>", note_header))
+        note_style = ParagraphStyle(
+            name='NoteBody',
+            fontName=chinese_font,
+            fontSize=10,
+            leading=14
+        )
+        formatted_notes = notes[page_num].replace('\\n', '<br/>')
+        elements.append(Paragraph(formatted_notes, note_style))
         
                 # Add page break if not the last page
         if page_num < len(lesson_data):
