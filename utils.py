@@ -35,20 +35,15 @@ def parse_tuition_file(files: list[str] | str):
 
     lesson_data = []
     months = []
-    sorted_files = sorted(files, key=lambda x: int(x.split("-")[-1].split(".")[0]), reverse=True)
+    sorted_files = sorted(files, key=lambda x: int(x.split("/")[-1].split("-")[-1].split(".")[0]), reverse=True)
     
     try:
         for file in sorted_files:
-            tuition_data_dir = "tuition_data"
-            data_dir_path = Path(tuition_data_dir)
-            if not data_dir_path.exists():
-                os.makedirs(tuition_data_dir)
-
-            file_path = os.path.join(tuition_data_dir, file)
-            if not os.path.exists(file_path):
+            file_path = Path(file)
+            if not file_path.exists():
                 raise FileNotFoundError(f"File not found: {file}")
 
-            name_parts = file.split(".")[0].split("-") 
+            name_parts = file.split("/")[-1].split(".")[0].split("-") 
             
             if len(name_parts) != 3:
                 raise ValueError(f"Invalid file name error. Expected 'COURSECODE-NAME-Month.csv', but got {file}")
