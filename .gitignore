@@ -6,5 +6,4 @@ note.txt
 
 /dist
 /build
-*.spec
 /__pycache__
