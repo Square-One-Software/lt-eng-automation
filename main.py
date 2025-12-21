@@ -26,7 +26,8 @@ def main():
         note_data = "\n"
         if note_filename:
             note_data = "\n".join(parse_note_txt(note_filename)) 
-        lesson_data, course_desc, student_name, month, month_name = parse_tuition_file(csv_filename)
+        tuition_data_dir = "tuition_data"
+        lesson_data, course_desc, student_name, month, month_name = parse_tuition_file(os.path.join(tuition_data_dir, csv_filename))
         current_year = datetime.now().year
         file_name = f"TuitionFeeDebitNote_{student_name}_{month_name}_{current_year}.pdf"
         generate_tuition_debit_note(
