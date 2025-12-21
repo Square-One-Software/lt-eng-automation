@@ -33,7 +33,7 @@ def main():
         generate_tuition_debit_note(
             filename=file_name,
             student_name=student_name,
-            month=f"{month}月",
+            months=[month],
             lesson_data=lesson_data,
             course_name=course_desc,
             notes=note_data
