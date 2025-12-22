@@ -100,16 +100,16 @@ async def receive_file(update: Update, context: ContextTypes.DEFAULT_TYPE) -> in
         await file.download_to_drive(local_file_path)
         # Parse the CSV file
         try:
-            tuition_data, course_desc, student_name, month, month_name = parse_tuition_file(local_file_path)
+            tuition_data, course_desc, student_name, months, month_name = parse_tuition_file(local_file_path)
             
             # Store the parsed data in context for later use
             context.user_data['tuition_data'] = tuition_data
             context.user_data['course_desc'] = course_desc
             context.user_data['student_name'] = student_name
-            context.user_data['month'] = month
+            context.user_data['months'] = months
             context.user_data['month_name'] = month_name
             context.user_data['file_path'] = local_file_path
-            context.user_data["lessons"] = tuition_data
+            context.user_data["lesson_data"] = tuition_data
             
             # Calculate total amount
             total_amount = sum(
@@ -123,7 +123,6 @@ async def receive_file(update: Update, context: ContextTypes.DEFAULT_TYPE) -> in
                 f"📋 **Summary:**\n"
                 f"👤 Student: {student_name}\n"
                 f"📚 Course: {course_desc}\n"
-                f"📅 Month: {month_name} ({month})\n"
                 f"📝 Total Lessons: {len(tuition_data)}\n"
                 f"💰 Total Amount: ${total_amount:,.0f} HKD\n\n"
                 f"Please send any notes you'd like to add to the invoice, or send /skip to generate without notes."
@@ -172,21 +171,21 @@ async def receive_notes(update: Update, context: ContextTypes.DEFAULT_TYPE) -> i
         
         # Retrieve stored data
         tuition_data = context.user_data.get('tuition_data')
-        course_desc = context.user_data.get('course_desc')
+        course_name = context.user_data.get('course_name')
         student_name = context.user_data.get('student_name')
-        month = context.user_data.get('month')
+        months = context.user_data.get('months')
         month_name = context.user_data.get('month_name')
         file_path = context.user_data.get('file_path')
-        lessons = context.user_data.get("lessons")
+        lesson_data = context.user_data.get("lesson_data")
         
-        if not all([tuition_data, course_desc, student_name, month]):
+        if not all([tuition_data, course_name, student_name, months]):
             await update.message.reply_text(
                 "❌ Error: Missing data. Please start over by sending the CSV file again."
             )
             return ConversationHandler.END
         
         # Generate PDF filename
-        pdf_filename = f"{student_name}_{month_name}_{month}_2025.pdf"
+        pdf_filename = f"{student_name}_{month_name}_2025.pdf"
         
         # Generate the PDF
         await update.message.reply_text("⏳ Generating PDF invoice...")
@@ -197,10 +196,10 @@ async def receive_notes(update: Update, context: ContextTypes.DEFAULT_TYPE) -> i
         generate_tuition_debit_note(
             filename=pdf_filename,
             student_name=student_name,
-            month=f"{month_name} {month}月",
-            lessons=lessons,
-            lesson_desc=course_desc,
-            notes=notes if notes else " " 
+            months=[months],
+            lesson_data=lesson_data,
+            course_name=course_name,
+            notes=notes if notes else [""] 
         )
         
         # Send the PDF file
