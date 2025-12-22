@@ -329,7 +329,8 @@ async def send_news(update: Update, _: ContextTypes.DEFAULT_TYPE) -> int:
         if not articles:
             await update.message.reply_text("📰 No news articles found at the moment.")
             return ConversationHandler.END
-        
+
+        await update.message.reply_text("Okay, fetching news now! Please wait...")
         formatted_messages = format_multiple_news_articles(articles, max_articles=3)
         
         for message in formatted_messages:
