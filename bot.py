@@ -21,6 +21,7 @@ from telegram.ext import (
 from requests.exceptions import ConnectionError 
 from pdf_utils import generate_vocabulary_pdf, generate_tuition_debit_note
 from utils import parse_tuition_file, format_multiple_news_articles, fetch_news
+from chat import GrokChat
 
 
 load_dotenv()
@@ -363,6 +364,16 @@ async def send_news(update: Update, _: ContextTypes.DEFAULT_TYPE) -> int:
     finally:
         return ConversationHandler.END
 
+async def send_chat(update: Update, _:ContextTypes.DEFAULT_TYPE) -> int:
+    if not auth(update.effective_chat.id):
+        await update.message.reply_text("Molly will not answer your question! Get off")
+        return ConversationHandler.END
+    else:
+        agent = GrokChat()
+        response = agent.chat(update.message.text)
+        await update.message.reply_text(response)
+        return ConversationHandler.END
+
 def main() -> None:
     app = Application.builder().token(TG_BOT_TOKEN).build()
 
@@ -391,6 +402,7 @@ def main() -> None:
     
     app.add_handler(CommandHandler("random", random_joke))
     app.add_handler(CommandHandler("news", send_news))
+    app.add_handler(MessageHandler(filters.TEXT, send_chat))
 
     print("Bot is running…")
     app.run_polling(allowed_updates=Update.ALL_TYPES)
