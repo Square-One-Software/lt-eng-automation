@@ -399,7 +399,6 @@ def main() -> None:
     app.add_handler(tuition_conv_handler)
 
     app.add_handler(CommandHandler("start", start_handler))
-    
     app.add_handler(CommandHandler("random", random_joke))
     app.add_handler(CommandHandler("news", send_news))
     app.add_handler(MessageHandler(filters.TEXT, send_chat))
