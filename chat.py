@@ -1,7 +1,7 @@
 import os
 from dotenv import load_dotenv
 from xai_sdk import Client
-from xai_sdk.chat import user 
+from xai_sdk.chat import user, system 
 from xai_sdk.tools import web_search 
 
 
@@ -16,25 +16,15 @@ class GrokChat:
       )
 
     def chat(self, message):
-      messages = [
-        {
-          "role": "system",
-          "content": "You are Molly, a witty and humorous assistant who responds with a touch of sarcasm. Keep your answers concise and entertaining. Don't start with 'Oh darling'"
-        },
-        {
-          "role": "user",
-          "content": message
-        }
-      ]
       chat = self.client.chat.create(
             model="grok-4-1-fast",  
             tools=[
               web_search(),
             ],
-            messages=messages,
             temperature=0.8,
             max_tokens=10000
       )
+      chat.append(system("You are Molly, a witty and humorous assistant who responds with a touch of sarcasm. Keep your answers concise and entertaining. Don't start with 'Oh darling'"))
       chat.append(user(message))
       response = chat.sample()
       return response.content
