@@ -365,14 +365,20 @@ async def send_news(update: Update, _: ContextTypes.DEFAULT_TYPE) -> int:
         return ConversationHandler.END
 
 async def send_chat(update: Update, _:ContextTypes.DEFAULT_TYPE) -> int:
-    if not auth(update.effective_chat.id):
-        await update.message.reply_text("Molly will not answer your question! Get off")
+    try:
+        if not auth(update.effective_chat.id):
+            await update.message.reply_text("Molly will not answer your question! Get off")
+            return ConversationHandler.END
+        else:
+            agent = GrokChat()
+            response = agent.chat(update.message.text)
+            await update.message.reply_text(response)
+            return ConversationHandler.END
+    except Exception as e:
+        print(f"Something went wrong with chat: {e}")
+    finally:
         return ConversationHandler.END
-    else:
-        agent = GrokChat()
-        response = agent.chat(update.message.text)
-        await update.message.reply_text(response)
-        return ConversationHandler.END
+
 
 def main() -> None:
     app = Application.builder().token(TG_BOT_TOKEN).build()
