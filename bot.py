@@ -371,7 +371,7 @@ async def send_chat(update: Update, _:ContextTypes.DEFAULT_TYPE) -> int:
             return ConversationHandler.END
         else:
             agent = GrokChat()
-            response = agent.chat(update.message.text)
+            response = agent.send_message(update.message.text)
             await update.message.reply_text(response)
             return ConversationHandler.END
     except Exception as e:
