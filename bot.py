@@ -375,7 +375,7 @@ async def send_chat(update: Update, _:ContextTypes.DEFAULT_TYPE) -> int:
             await update.message.reply_text(response)
             return ConversationHandler.END
     except Exception as e:
-        print(f"Something went wrong with chat: {e}")
+       logger.exception(f"Error in chat handler: {e}")
     finally:
         return ConversationHandler.END
 
