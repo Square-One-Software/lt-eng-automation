@@ -2,7 +2,7 @@ import sys
 from PyQt5.QtWidgets import (QApplication, QMainWindow, QWidget, QVBoxLayout, 
                              QHBoxLayout, QLabel, QPushButton, QListWidget, 
                              QTextEdit, QFrame, QProgressBar, QFileDialog,
-                             QSizePolicy)
+                             )
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QFont
 from utils import parse_tuition_file
