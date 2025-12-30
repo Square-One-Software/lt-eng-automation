@@ -96,6 +96,12 @@ def week_of_month(dt):
     # Get the ISO week number for the target date
     target_iso_week = dt.isocalendar()[1]
 
+    # ISO week ends at the last Sunday of the year, and each year the highest iso week number is 52 or 53
+    # If ISO week is smaller than first day iso week, we need to add the highest iso week number to pretend that there's an overflow
+    if target_iso_week < first_day_iso_week:
+        highest_iso_week = 52
+        target_iso_week = target_iso_week + highest_iso_week 
+    
     # Calculate the week number within the month
     # Add 1 because the week numbers are 1-indexed
     week_number_of_month = target_iso_week - first_day_iso_week + 1
