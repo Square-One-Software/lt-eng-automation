@@ -16,6 +16,22 @@ def parse_vocab_file(file):
     except IOError as error:
         print(error)
 
+def sort_recent_months(months):
+    if not months:
+        return months
+    
+    sorted_months = sorted(months, reverse=True)
+    
+    # Check if we have a year boundary (e.g., [1, 12] or [2, 1, 12])
+    # If min is close to 1 and max is close to 12, we likely crossed years
+    if min(months) <= 2 and max(months) >= 11:
+        # Move months <= 2 to the front (they're from the new year)
+        new_year = [m for m in sorted_months if m <= 2]
+        old_year = [m for m in sorted_months if m > 2]
+        return new_year + old_year
+    
+    return sorted_months
+
 def parse_tuition_file(files: list[str] | str):
     TUITION_SCHEMA = {
         "JS": "1 對 1 初中英文面授課",
@@ -62,7 +78,7 @@ def parse_tuition_file(files: list[str] | str):
                 reader = csv.DictReader(f)
                 lesson_data.append([{key: TUITION_SCHEMA.get(val, val) for (key, val) in row.items()} for row in reader])
         
-        months = sorted(months, reverse=True)
+        months = sort_recent_months(months)
         month_name = calendar.month_abbr[months[0]]
         return lesson_data, TUITION_SCHEMA[course_code], student_name, months, month_name
     except FileNotFoundError as e:
