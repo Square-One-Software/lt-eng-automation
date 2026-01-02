@@ -32,6 +32,25 @@ def sort_recent_months(months):
     
     return sorted_months
 
+def sort_files_by_month(files):
+    months = [int(f.split("/")[-1].split("-")[-1].split(".")[0]) for f in files]
+    print(months)
+    # Check for year boundary
+    if min(months) <= 2 and max(months) >= 11:
+        # Year boundary detected
+        sorted_files = sorted(files, key=lambda x: (m := int(x.split("/")[-1].split("-")[-1].split(".")[0]), -m if m <= 2 else m), reverse=True)
+    else:
+        sorted_files = sorted(files, key=lambda x: int(x.split("/")[-1].split("-")[-1].split(".")[0]), reverse=True)
+    
+    return sorted_files
+
+def get_month_sort_key(filepath):
+    # Extract the month number from the filepath
+    month = int(filepath.split("/")[-1].split("-")[-1].split(".")[0])
+    
+    # Map January to 13 for sorting purposes
+    return month if month != 1 else 13
+
 def parse_tuition_file(files: list[str] | str):
     TUITION_SCHEMA = {
         "JS": "1 對 1 初中英文面授課",
@@ -51,7 +70,8 @@ def parse_tuition_file(files: list[str] | str):
 
     lesson_data = []
     months = []
-    sorted_files = sorted(files, key=lambda x: int(x.split("/")[-1].split("-")[-1].split(".")[0]), reverse=True)
+    sorted_files = sorted(files, key=get_month_sort_key, reverse=True)
+    print(sorted_files)
     
     try:
         for file in sorted_files:
