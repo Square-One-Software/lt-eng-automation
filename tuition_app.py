@@ -283,6 +283,8 @@ class TuitionNotesGenerator(QMainWindow):
         if filenames:
             self.uploaded_files.extend(filenames)
             self.update_file_list()
+            lesson_data, course_name, student_name, month, month_name = parse_tuition_file(self.uploaded_files)
+            self.add_tuition_record(course_name, lesson_data, student_name, month, month_name) 
             self.update_status(f"Added {len(filenames)} files", "success")
             
     def remove_selected_file(self):
