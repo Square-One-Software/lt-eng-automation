@@ -329,7 +329,7 @@ class TuitionNotesGenerator(QMainWindow):
         self.char_count_label.setText(f"{char_count} characters")
         
     def insert_template(self, template_text):
-        self.notes_text.append(template_text)
+        self.notes_text.insertPlainText(template_text) # .append() will insert a line break everytime
         
     def clear_notes(self):
         self.notes_text.clear()
