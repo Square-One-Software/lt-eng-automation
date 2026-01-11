@@ -185,11 +185,6 @@ class TuitionNotesGenerator(QMainWindow):
         
     def create_action_buttons(self, layout):
         button_layout = QHBoxLayout()
-        
-        # settings_btn = QPushButton("⚙️ Settings")
-        # settings_btn.clicked.connect(self.open_settings)
-        # button_layout.addWidget(settings_btn)
-        
         button_layout.addStretch()
         
         self.preview_btn = QPushButton("Preview")
@@ -364,10 +359,6 @@ class TuitionNotesGenerator(QMainWindow):
     def preview_invoices(self):
         # TODO: Implement preview
         self.update_status("Preview feature coming soon...", "info")
-        
-    def open_settings(self):
-        # TODO: Implement settings
-        self.update_status("Settings feature coming soon...", "info")
         
     def update_status(self, message, status_type="info"):
         colors = {
