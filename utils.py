@@ -44,12 +44,6 @@ def sort_files_by_month(files):
     
     return sorted_files
 
-def get_month_sort_key(filepath):
-    # Extract the month number from the filepath
-    month = int(filepath.split("/")[-1].split("-")[-1].split(".")[0])
-    # Map January to 13 for sorting purposes
-    return month if month != 1 else 13
-
 def sort_files(files):
     files_dict = {}
     for file in files:
