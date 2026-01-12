@@ -47,9 +47,20 @@ def sort_files_by_month(files):
 def get_month_sort_key(filepath):
     # Extract the month number from the filepath
     month = int(filepath.split("/")[-1].split("-")[-1].split(".")[0])
-    
     # Map January to 13 for sorting purposes
     return month if month != 1 else 13
+
+def sort_files(files):
+    files_dict = {}
+    for file in files:
+        month = int(file.split("/")[-1].split("-")[-1].split(".")[0])
+        files_dict[month] = file
+    DEC, JAN = 12, 1
+    if DEC in files_dict and JAN in files_dict:
+        desired_orders = [1, 12]
+        return [files_dict[key] for key in desired_orders] + [files_dict[key] for key in sorted(files_dict, reverse=True) if key not in desired_orders]
+    else:
+        return [files_dict[key] for key in sorted(files_dict, reverse=True)]
 
 def parse_tuition_file(files: list[str] | str):
     TUITION_SCHEMA = {
@@ -70,8 +81,7 @@ def parse_tuition_file(files: list[str] | str):
 
     lesson_data = []
     months = []
-    sorted_files = sorted(files, key=get_month_sort_key, reverse=True)
-    print(sorted_files)
+    sorted_files = sort_files(files)
     
     try:
         for file in sorted_files:
