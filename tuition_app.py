@@ -311,13 +311,16 @@ class TuitionNotesGenerator(QMainWindow):
         
     def on_file_select(self):
         current_row = self.file_list.currentRow()
-        if current_row > 0:
+        if 0 <= current_row < len(self.uploaded_files):
             file_path = self.uploaded_files[current_row]
             file_size = os.path.getsize(file_path)
             size_kb = file_size / 1024
             self.file_details_label.setText(
                 f"Size: {size_kb:.1f} KB | Path: {file_path}"
             )
+        else:
+           # clear file details label
+           self.file_details_label.setText("") 
             
     def update_char_count(self):
         char_count = len(self.notes_text.toPlainText())
