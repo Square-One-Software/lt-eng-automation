@@ -54,7 +54,8 @@ def parse_tuition_file(files: list[str] | str):
         "NA": "N/A",
         "S": "Scheduled 已安排",
         "C": "Completed 完成",
-        "R": "Rescheduled 調堂"
+        "R": "Rescheduled 調堂",
+        "CA": "Cancelled 取消"
     }
 
     if not isinstance(files, list):
