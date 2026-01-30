@@ -24,13 +24,12 @@ def sort_recent_months(months):
     
     # Check if we have a year boundary (e.g., [1, 12] or [2, 1, 12])
     # If min is close to 1 and max is close to 12, we likely crossed years
-    if min(months) <= 2 and max(months) >= 11:
-        # Move months <= 2 to the front (they're from the new year)
-        new_year = [m for m in sorted_months if m <= 2]
-        old_year = [m for m in sorted_months if m > 2]
-        return new_year + old_year
-    
-    return sorted_months
+    DEC, JAN = 12, 1
+    if DEC in sorted_months and JAN in sorted_months:
+        desired_orders = [1, 12]
+        return [m for m in sorted_months if m not in desired_orders] + desired_orders
+    else:
+        return sorted_months
 
 def sort_files_by_month(files):
     months = [int(f.split("/")[-1].split("-")[-1].split(".")[0]) for f in files]
@@ -52,7 +51,7 @@ def sort_files(files):
     DEC, JAN = 12, 1
     if DEC in files_dict and JAN in files_dict:
         desired_orders = [1, 12]
-        return [files_dict[key] for key in desired_orders] + [files_dict[key] for key in sorted(files_dict, reverse=True) if key not in desired_orders]
+        return [files_dict[key] for key in sorted(files_dict, reverse=True) if key not in desired_orders] + [files_dict[key] for key in desired_orders] 
     else:
         return [files_dict[key] for key in sorted(files_dict, reverse=True)]
 
