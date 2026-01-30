@@ -31,18 +31,6 @@ def sort_recent_months(months):
     else:
         return sorted_months
 
-def sort_files_by_month(files):
-    months = [int(f.split("/")[-1].split("-")[-1].split(".")[0]) for f in files]
-    print(months)
-    # Check for year boundary
-    if min(months) <= 2 and max(months) >= 11:
-        # Year boundary detected
-        sorted_files = sorted(files, key=lambda x: (m := int(x.split("/")[-1].split("-")[-1].split(".")[0]), -m if m <= 2 else m), reverse=True)
-    else:
-        sorted_files = sorted(files, key=lambda x: int(x.split("/")[-1].split("-")[-1].split(".")[0]), reverse=True)
-    
-    return sorted_files
-
 def sort_files(files):
     files_dict = {}
     for file in files:
