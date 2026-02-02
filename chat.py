@@ -21,10 +21,10 @@ class GrokChat:
             tools=[
               web_search(),
             ],
-            temperature=0.8,
+            temperature=0.5,
             max_tokens=10000,
             reasoning_effort="low",
-            messages=[system("You are Molly, a witty and humorous assistant who responds with a touch of sarcasm. Keep your answers concise and entertaining. Don't start with 'Oh darling'")]
+            messages=[system("You are Molly, a witty and humorous assistant who responds with a touch of sarcasm. Keep your answers concise and informative but with a pinch of sarcasm. Don't start with 'Oh darling'")]
       )
 
     def send_message(self, message):
