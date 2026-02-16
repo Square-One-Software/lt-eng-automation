@@ -266,6 +266,7 @@ def generate_tuition_debit_note(
     # Build PDF
     doc.build(elements)
     print(f"Tuition debit note generated: {filename}")
+    os.rename(f"{filename}", f"tuition_notes/{filename}")
 
 
 # testing
