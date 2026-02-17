@@ -8,7 +8,7 @@ from reportlab.pdfbase.ttfonts import TTFont
 from reportlab.pdfbase.cidfonts import UnicodeCIDFont
 from reportlab.lib.enums import TA_CENTER, TA_LEFT
 from datetime import datetime
-from utils import create_vocabulary_table, week_of_month, parse_tuition_file
+from utils import create_vocabulary_table, week_of_month 
 from functools import reduce
 import os
 
