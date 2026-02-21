@@ -267,8 +267,8 @@ async def receive_list(update: Update, context: ContextTypes.DEFAULT_TYPE) -> in
         pairs = [item.strip().split(",") for item in text.split(";") if item]
         vocab_data = []
         for pair in pairs:
-            if len(pair) < 2:
-                raise ValueError(f"This pair of word has the word or pos missing: {pair}")
+            if len(pair) <= 2:
+                raise ValueError(f"This pair of word has a missing part -> {pair}")
             word, pos_raw, custom_meaning = pair
             if len(word) == 0 or len(pos_raw) == 0:
                 raise ValueError("Empty word or POS")
@@ -278,7 +278,7 @@ async def receive_list(update: Update, context: ContextTypes.DEFAULT_TYPE) -> in
             vocab_data.append((word.lower(), pos, custom_meaning))   # Chinese meaning will be added later
     except Exception as e:
         await update.message.reply_text(
-            f"Invalid format. Please try again.\nError: {e}\n\n"
+            f"Invalid format. Please try again.\nError: \n{e}\n\n"
             "Use: word,pos;word,pos;..."
         )
         return WAITING_FOR_LIST
