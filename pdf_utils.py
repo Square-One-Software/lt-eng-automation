@@ -207,14 +207,6 @@ def generate_tuition_debit_note(
             spaceAfter=12
         )
         
-        # if len(lesson_data) > 1:
-        #     header_text = f"<b>{student_name} - Page {page_num}/{len(lesson_data)}</b>"
-        # else:
-        #     header_text = f"<b>{student_name}</b>"
-        
-        # elements.append(Paragraph(header_text, header_style))
-        # elements.append(Spacer(1, 10))
-
         if page_lessons:
             # 5. Table data
             table_data = [
