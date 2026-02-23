@@ -8,9 +8,10 @@ from PyQt5.QtWidgets import (QApplication, QMainWindow, QWidget, QVBoxLayout,
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QFont
 from utils import parse_tuition_file
-from pdf_utils import generate_tuition_debit_note
+from pdf_utils import generate_tuition_debit_note, TUITION_NOTES_PATH
 from datetime import datetime
 import os 
+import subprocess
 
 class TuitionNotesGenerator(QMainWindow):
     def __init__(self):
@@ -188,7 +189,11 @@ class TuitionNotesGenerator(QMainWindow):
     def create_action_buttons(self, layout):
         button_layout = QHBoxLayout()
         button_layout.addStretch()
-        
+
+        self.open_folder_btn = QPushButton("Open Folder")
+        self.open_folder_btn.clicked.connect(self.open_folder)
+        button_layout.addWidget(self.open_folder_btn)
+
         self.preview_btn = QPushButton("Preview")
         self.preview_btn.clicked.connect(self.preview_invoices)
         self.preview_btn.setEnabled(False)
@@ -364,6 +369,24 @@ class TuitionNotesGenerator(QMainWindow):
     def preview_invoices(self):
         # TODO: Implement preview
         self.update_status("Preview feature coming soon...", "info")
+    
+    def open_folder(self):
+        """Opens the specified folder in the native file explorer."""
+        CURR_DIR = os.getcwd()
+        path = os.path.join(CURR_DIR, TUITION_NOTES_PATH)
+
+        if sys.platform == 'win32':
+            # Open folder explorer on Windows
+            subprocess.run(['explorer', os.path.normpath(path)])
+        elif sys.platform == 'darwin':
+            # Use 'open' on macOS (Finder)
+            subprocess.run(['open', '--', path])
+        elif 'linux' in sys.platform:
+            # Use 'xdg-open' on Linux
+            subprocess.run(['xdg-open', path])
+        else:
+            print(f"Unsupported operating system: {sys.platform}")
+        
         
     def update_status(self, message, status_type="info"):
         colors = {
