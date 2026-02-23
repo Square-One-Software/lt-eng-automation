@@ -12,6 +12,8 @@ from utils import create_vocabulary_table, week_of_month
 from functools import reduce
 import os
 
+TUITION_NOTES_PATH = "tuition_notes"
+
 def register_chinese_font() -> str:
     chinese_font = None
     try:
@@ -258,8 +260,8 @@ def generate_tuition_debit_note(
     # Build PDF
     doc.build(elements)
     print(f"Tuition debit note generated: {filename}")
-    os.makedirs("tuition_notes", exist_ok=True)
-    os.rename(f"{filename}", f"tuition_notes/{filename}")
+    os.makedirs(TUITION_NOTES_PATH, exist_ok=True)
+    os.rename(f"{filename}", f"{TUITION_NOTES_PATH}/{filename}")
 
 
 # testing
