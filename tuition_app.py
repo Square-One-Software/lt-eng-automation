@@ -6,7 +6,7 @@ from PyQt5.QtWidgets import (QApplication, QMainWindow, QWidget, QVBoxLayout,
                              QTextEdit, QFrame, QProgressBar, QFileDialog,
                              )
 from PyQt5.QtCore import Qt
-from PyQt5.QtGui import QFont
+from PyQt5.QtGui import QFont, QIcon
 from utils import parse_tuition_file
 from pdf_utils import generate_tuition_debit_note, TUITION_NOTES_PATH
 from datetime import datetime
@@ -403,7 +403,9 @@ class TuitionNotesGenerator(QMainWindow):
 
 
 def main():
+    ICON_PATH = "assets/icon-256.png"
     app = QApplication(sys.argv)
+    app.setWindowIcon(QIcon(ICON_PATH))
     window = TuitionNotesGenerator()
     window.show()
     sys.exit(app.exec_())
