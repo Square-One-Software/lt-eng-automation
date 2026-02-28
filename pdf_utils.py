@@ -12,7 +12,8 @@ from utils import create_vocabulary_table, week_of_month
 from functools import reduce
 import os
 
-TUITION_NOTES_PATH = "tuition_notes"
+CURR_DIR = os.getcwd()
+TUITION_NOTES_PATH = os.path.join(CURR_DIR, "tuition_notes")
 
 def register_chinese_font() -> str:
     chinese_font = None

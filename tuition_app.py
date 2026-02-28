@@ -372,8 +372,7 @@ class TuitionNotesGenerator(QMainWindow):
     
     def open_folder(self):
         """Opens the specified folder in the native file explorer."""
-        CURR_DIR = os.getcwd()
-        path = os.path.join(CURR_DIR, TUITION_NOTES_PATH)
+        path = TUITION_NOTES_PATH
 
         if sys.platform == 'win32':
             # Open folder explorer on Windows
