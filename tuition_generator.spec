@@ -71,7 +71,7 @@ exe = EXE(
 app = BUNDLE(
     exe,
     name='TuitionGenerator.app',
-    icon=None,
+    icon='./assets/icon.ico',
     bundle_identifier='com.yourname.tuitiongenerator',
     info_plist={
         'NSPrincipalClass': 'NSApplication',
