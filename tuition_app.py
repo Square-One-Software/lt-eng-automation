@@ -7,11 +7,13 @@ from PyQt5.QtWidgets import (QApplication, QMainWindow, QWidget, QVBoxLayout,
                              )
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QFont, QIcon
-from utils import parse_tuition_file
-from pdf_utils import generate_tuition_debit_note, TUITION_NOTES_PATH
+from utils import parse_tuition_file, get_output_dir, get_resource_path
+import pdf_utils
 from datetime import datetime
 import os 
 import subprocess
+
+pdf_utils.TUITION_NOTES_PATH = get_output_dir()
 
 class TuitionNotesGenerator(QMainWindow):
     def __init__(self):
@@ -361,7 +363,7 @@ class TuitionNotesGenerator(QMainWindow):
         self.update_status("Generating invoices...", "processing")
         course_name, lesson_data, student_name, months, month_name  = self.tuition_record.values()
         file_name = f"TuitionFeeDebitNote_{student_name}_{month_name}_{self.current_year}.pdf"
-        generate_tuition_debit_note(filename=file_name, student_name=student_name, months=months, lesson_data=lesson_data, course_name=course_name, notes=notes)
+        pdf_utils.generate_tuition_debit_note(filename=file_name, student_name=student_name, months=months, lesson_data=lesson_data, course_name=course_name, notes=notes, output_path=get_output_dir())
         
         self.update_status("Successfully generated tuition notes", "success")
         return 
@@ -372,7 +374,7 @@ class TuitionNotesGenerator(QMainWindow):
     
     def open_folder(self):
         """Opens the specified folder in the native file explorer."""
-        path = TUITION_NOTES_PATH
+        path = get_output_dir()
 
         if sys.platform == 'win32':
             # Open folder explorer on Windows
@@ -402,7 +404,7 @@ class TuitionNotesGenerator(QMainWindow):
 
 
 def main():
-    ICON_PATH = "assets/icon-256.png"
+    ICON_PATH = get_resource_path("assets/icon-256.png")
     app = QApplication(sys.argv)
     app.setWindowIcon(QIcon(ICON_PATH))
     window = TuitionNotesGenerator()
