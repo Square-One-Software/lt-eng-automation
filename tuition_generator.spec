@@ -31,8 +31,10 @@ hiddenimports += [
 a = Analysis(
     ['tuition_app.py'],
     pathex=[],
+    datas=[
+        ("assets", "assets"),
+    ],
     binaries=binaries,
-    datas=datas,
     hiddenimports=hiddenimports,
     hookspath=[],
     hooksconfig={},
@@ -61,6 +63,7 @@ exe = EXE(
     upx_exclude=[],
     runtime_tmpdir=None,
     console=False,
+    onefile=False,
     disable_windowed_traceback=False,
     argv_emulation=False,
     target_arch=None,
