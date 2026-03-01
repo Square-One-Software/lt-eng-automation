@@ -8,12 +8,12 @@ from reportlab.pdfbase.ttfonts import TTFont
 from reportlab.pdfbase.cidfonts import UnicodeCIDFont
 from reportlab.lib.enums import TA_CENTER, TA_LEFT
 from datetime import datetime
-from utils import create_vocabulary_table, week_of_month 
+from utils import create_vocabulary_table, week_of_month, get_resource_path 
 from functools import reduce
 import os
 
 CURR_DIR = os.getcwd()
-TUITION_NOTES_PATH = os.path.join(CURR_DIR, "tuition_notes")
+TUITION_NOTES_PATH = get_resource_path("tuition_notes")
 
 def register_chinese_font() -> str:
     chinese_font = None
@@ -152,7 +152,8 @@ def generate_tuition_debit_note(
     months: list,                     # e.g. [11, 10]
     lesson_data: list,                  # List of dicts → see example below
     course_name: str,
-    notes: list = []               # Optional notes (e.g. payment received message)
+    notes: list = [],               # Optional notes (e.g. payment received message)
+    output_path: str = TUITION_NOTES_PATH
 ) -> None:
     """
     Generates a Tuition Fee Debit Note that looks identical to your PDF.
@@ -261,8 +262,7 @@ def generate_tuition_debit_note(
     # Build PDF
     doc.build(elements)
     print(f"Tuition debit note generated: {filename}")
-    os.makedirs(TUITION_NOTES_PATH, exist_ok=True)
-    os.rename(f"{filename}", f"{TUITION_NOTES_PATH}/{filename}")
+    os.rename(f"{filename}", f"{output_path}/{filename}")
 
 
 # testing
