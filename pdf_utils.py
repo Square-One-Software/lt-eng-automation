@@ -8,20 +8,20 @@ from reportlab.pdfbase.ttfonts import TTFont
 from reportlab.pdfbase.cidfonts import UnicodeCIDFont
 from reportlab.lib.enums import TA_CENTER, TA_LEFT
 from datetime import datetime
-from utils import create_vocabulary_table, week_of_month, get_resource_path 
+from utils import create_vocabulary_table, week_of_month, get_output_dir, get_resource_path
 from functools import reduce
 import os
 
-CURR_DIR = os.getcwd()
-TUITION_NOTES_PATH = get_resource_path("tuition_notes")
+TUITION_NOTES_PATH = get_output_dir()
 
 def register_chinese_font() -> str:
     chinese_font = None
     try:
         # use a TrueType font for Chinese        
         # Fonts from: https://fonts.google.com/noto/fonts
+        font_path = get_resource_path(os.path.join("fonts", "NotoSansTC-Medium.ttf"))
         if os.path.exists('fonts/NotoSansTC-Medium.ttf'): 
-            pdfmetrics.registerFont(TTFont('ChineseFont', 'fonts/NotoSansTC-Medium.ttf'))
+            pdfmetrics.registerFont(TTFont('ChineseFont', font_path))
             chinese_font = 'ChineseFont'
         else:
             # Fallback to CID font
@@ -160,7 +160,8 @@ def generate_tuition_debit_note(
     """
     chinese_font = register_chinese_font()
     
-    doc = SimpleDocTemplate(filename, pagesize=A4, topMargin=0.8*inch, bottomMargin=0.8*inch)
+    full_pdf_path = os.path.join(output_path, filename)
+    doc = SimpleDocTemplate(full_pdf_path, pagesize=A4, topMargin=0.8*inch, bottomMargin=0.8*inch)
     elements = []
     styles, table_style = set_tuition_debit_note_style(chinese_font)
 
@@ -262,7 +263,6 @@ def generate_tuition_debit_note(
     # Build PDF
     doc.build(elements)
     print(f"Tuition debit note generated: {filename}")
-    os.rename(f"{filename}", f"{output_path}/{filename}")
 
 
 # testing
