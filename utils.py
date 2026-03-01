@@ -1,6 +1,27 @@
-import csv, asyncio, calendar, os, requests
+import csv, asyncio, calendar, os, requests, sys
 from googletrans import Translator  # For translation
 from pathlib import Path
+
+def get_resource_path(relative_path: str) -> str:
+    """Return the absolute path to a resource.
+    for handling file both during dev and when the app is bundled
+    """
+    if getattr(sys, "frozen", False) and hasattr(sys, "_MEIPASS"):
+        base_path = sys._MEIPASS
+    else:
+        base_path = os.path.dirname(os.path.abspath(__file__))
+    return os.path.join(base_path, relative_path)
+
+def get_output_dir() -> str:
+    """Always returns a WRITABLE folder (even when bundled)"""
+    if getattr(sys, "frozen", False) and hasattr(sys, "_MEIPASS"):
+        base_path = os.path.expanduser("~/Documents")
+    else:
+        base_path = os.getcwd()
+    
+    output_dir = os.path.join(base_path, "tuition_notes")
+    os.makedirs(output_dir, exist_ok=True)
+    return output_dir
 
 def parse_vocab_file(file):
     try:
