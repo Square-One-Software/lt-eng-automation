@@ -33,6 +33,7 @@ a = Analysis(
     pathex=[],
     datas=[
         ("assets", "assets"),
+        ("fonts", "fonts"),
     ],
     binaries=binaries,
     hiddenimports=hiddenimports,
