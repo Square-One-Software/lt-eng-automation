@@ -12,8 +12,6 @@ from utils import create_vocabulary_table, week_of_month, get_output_dir, get_re
 from functools import reduce
 import os
 
-TUITION_NOTES_PATH = get_output_dir()
-
 def register_chinese_font() -> str:
     chinese_font = None
     try:
@@ -153,7 +151,7 @@ def generate_tuition_debit_note(
     lesson_data: list,                  # List of dicts → see example below
     course_name: str,
     notes: list = [],               # Optional notes (e.g. payment received message)
-    output_path: str = TUITION_NOTES_PATH
+    output_path: str = get_output_dir()
 ) -> None:
     """
     Generates a Tuition Fee Debit Note that looks identical to your PDF.

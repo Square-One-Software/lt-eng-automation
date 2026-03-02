@@ -8,12 +8,10 @@ from PyQt5.QtWidgets import (QApplication, QMainWindow, QWidget, QVBoxLayout,
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QFont, QIcon
 from utils import parse_tuition_file, get_output_dir, get_resource_path
-import pdf_utils
+from pdf_utils import generate_tuition_debit_note
 from datetime import datetime
 import os 
 import subprocess
-
-pdf_utils.TUITION_NOTES_PATH = get_output_dir()
 
 class TuitionNotesGenerator(QMainWindow):
     def __init__(self):
@@ -363,7 +361,7 @@ class TuitionNotesGenerator(QMainWindow):
         self.update_status("Generating invoices...", "processing")
         course_name, lesson_data, student_name, months, month_name  = self.tuition_record.values()
         file_name = f"TuitionFeeDebitNote_{student_name}_{month_name}_{self.current_year}.pdf"
-        pdf_utils.generate_tuition_debit_note(filename=file_name, student_name=student_name, months=months, lesson_data=lesson_data, course_name=course_name, notes=notes, output_path=get_output_dir())
+        generate_tuition_debit_note(filename=file_name, student_name=student_name, months=months, lesson_data=lesson_data, course_name=course_name, notes=notes, output_path=get_output_dir())
         
         self.update_status("Successfully generated tuition notes", "success")
         return 
