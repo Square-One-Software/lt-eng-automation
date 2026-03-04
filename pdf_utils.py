@@ -18,7 +18,7 @@ def register_chinese_font() -> str:
         # use a TrueType font for Chinese        
         # Fonts from: https://fonts.google.com/noto/fonts
         font_path = get_resource_path(os.path.join("fonts", "NotoSansTC-Medium.ttf"))
-        if os.path.exists('fonts/NotoSansTC-Medium.ttf'): 
+        if os.path.exists(font_path): 
             pdfmetrics.registerFont(TTFont('ChineseFont', font_path))
             chinese_font = 'ChineseFont'
         else:
