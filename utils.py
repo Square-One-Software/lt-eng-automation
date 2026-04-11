@@ -34,8 +34,10 @@ def parse_vocab_file(file):
         return vocab_data
     except FileNotFoundError as error:
         print(error)
+        return []
     except IOError as error:
         print(error)
+        return []
 
 def sort_recent_months(months):
     if not months:
