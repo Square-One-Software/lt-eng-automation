@@ -21,7 +21,7 @@ def main():
         output_filename = args.output
         vocab_data = parse_vocab_file(csv_filename)
         # Generate PDF
-        asyncio.run(generate_vocabulary_pdf(output_filename, vocab_data))
+        generate_vocabulary_pdf(output_filename, vocab_data)
     else:
         note_data = "\n"
         if note_filename:

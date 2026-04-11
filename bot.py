@@ -106,7 +106,7 @@ async def receive_list(update: Update, context: ContextTypes.DEFAULT_TYPE) -> in
     # ---- Generate the PDF (reuse YOUR existing function) ----
     output_filename = f"review_notes_{context.user_data['student_name']}.pdf"
     try:
-        await generate_vocabulary_pdf(output_filename, vocab_data)
+        generate_vocabulary_pdf(output_filename, vocab_data)
         # ---- Send the PDF back to the user ----
         with open(output_filename, "rb") as pdf_file:
             await update.message.reply_document(

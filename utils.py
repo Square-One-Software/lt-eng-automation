@@ -1,5 +1,5 @@
 import csv, asyncio, calendar, os, requests, sys
-from googletrans import Translator  # For translation
+from deep_translator import GoogleTranslator
 from pathlib import Path
 
 def get_resource_path(relative_path: str) -> str:
@@ -158,25 +158,24 @@ def week_of_month(dt):
     week_number_of_month = target_iso_week - first_day_iso_week + 1
     return week_number_of_month
 
-async def translate_to_chinese(translator, text):
-    """Translate English text to Simplified Chinese."""
+def translate_to_chinese(text: str) -> str:
+    """Translate English text to Traditional Chinese."""
     try:
-        # Translate to 'zh-cn' (Simplified Chinese)
-        result = await translator.translate(text, dest='zh-tw')
-        return result.text
+        result = GoogleTranslator(source="en", target="zh-TW").translate(text)
+        print(result)
+        return result
     except Exception as e:
         print(f"Translation error for '{text}': {e}")
-        return "Translation failed"  # Fallback
+        return "Translation failed"
 
-async def create_vocabulary_table(data):
+def create_vocabulary_table(data):
     """Create a table for the PDF from vocabulary data."""
     table_data = [['Vocabulary (Part of Speech)', 'Chinese Meaning']]
-    translator = Translator()
-    tasks = [translate_to_chinese(translator, vocab) for vocab, _, _ in data]
-    translations = await asyncio.gather(*tasks)
-    for (vocab, pos, custom_meaning), chinese in zip(data, translations):
+    
+    for vocab, pos, custom_meaning in data:
+        chinese = translate_to_chinese(vocab)
         meaning = custom_meaning if custom_meaning else chinese
-        table_data.append([f"{vocab} ({pos})", meaning])
+        table_data.append([f"{vocab}, ({pos})", meaning])
     return table_data
 
 def escape_markdown(text: str) -> str:
