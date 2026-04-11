@@ -214,7 +214,7 @@ def format_news_article(article: dict) -> str:
     # Extract fields with fallbacks
     title = article.get('title', 'No Title')
     description = article.get('description', "")
-    url = article.get('url', article.get('url', ''))
+    url = article.get('url', '')
     
     # Build the formatted message
     message_parts = []
@@ -256,7 +256,7 @@ def format_multiple_news_articles(articles: list, max_articles: int = 3) -> list
     header = f"📰 *Latest News* ({min(len(articles), max_articles)} articles)\n"
     messages.append(header)
     
-    for _, article in enumerate(articles[:max_articles]):
+    for article in articles[:max_articles]:
         formatted_article = format_news_article(article)
         article_length = len(formatted_article)
         # Check if adding this article would exceed the limit
