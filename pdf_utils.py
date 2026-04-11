@@ -25,7 +25,7 @@ def register_chinese_font() -> str:
             # Fallback to CID font
             chinese_font = 'STSong-Light'
             pdfmetrics.registerFont(UnicodeCIDFont(chinese_font))
-    except:
+    except Exception:
         # Final fallback
         chinese_font = 'STSong-Light'
         pdfmetrics.registerFont(UnicodeCIDFont(chinese_font))
