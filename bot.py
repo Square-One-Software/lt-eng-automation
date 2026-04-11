@@ -51,16 +51,6 @@ async def start_handler(update: Update, _: ContextTypes.DEFAULT_TYPE) -> int:
         await update.message.reply_text("This's Molly. Who are you? I don't think I know you...")
     return ConversationHandler.END
 
-async def tuition_note_start(update: Update, _: ContextTypes.DEFAULT_TYPE) -> int:
-    if auth(update.effective_chat.id):
-        await update.message.reply_text(
-            "Hi! 1) Send me the file for the student first~\n\n"
-            "Send /cancel to stop ^.^",
-        )
-        return WAITING_FOR_FILE
-    else:
-        await update.message.reply_text("I don't know what you're talking about =.=")
-        return ConversationHandler.END
 
 async def vocab_start(update: Update, _: ContextTypes.DEFAULT_TYPE) -> int:
     if auth(update.effective_chat.id):
