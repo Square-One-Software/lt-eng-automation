@@ -19,8 +19,8 @@ from telegram.ext import (
     filters,
 )
 from requests.exceptions import ConnectionError 
-from pdf_utils import generate_vocabulary_pdf, generate_tuition_debit_note
-from utils import parse_tuition_file, format_multiple_news_articles, fetch_news
+from pdf_utils import generate_vocabulary_pdf 
+from utils import format_multiple_news_articles, fetch_news
 from chat import GrokChat
 
 
