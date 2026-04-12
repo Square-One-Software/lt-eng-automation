@@ -175,7 +175,7 @@ def create_vocabulary_table(data):
     for vocab, pos, custom_meaning in data:
         chinese = translate_to_chinese(vocab)
         meaning = custom_meaning if custom_meaning else chinese
-        table_data.append([f"{vocab}, ({pos})", meaning])
+        table_data.append([f"{vocab} ({pos})", meaning])
     return table_data
 
 def escape_markdown(text: str) -> str:
