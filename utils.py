@@ -1,4 +1,4 @@
-import csv, asyncio, calendar, os, requests, sys
+import csv, calendar, os, requests, sys
 from deep_translator import GoogleTranslator
 from pathlib import Path
 
