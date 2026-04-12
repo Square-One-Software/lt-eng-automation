@@ -211,7 +211,6 @@ def main() -> None:
         },
         fallbacks=[CommandHandler("cancel", cancel)],
     )
-
     app.add_handler(vocab_conv_handler)
 
     app.add_handler(CommandHandler("start", start_handler))
