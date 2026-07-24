@@ -70,7 +70,7 @@ def parse_tuition_file(files: list[str] | str):
     TUITION_SCHEMA = {
         "JS": "1 對 1 初中英文面授課",
         "SS": "1 對 1 DSE 英文面授課",
-        "GS": "1 對 1 英文語法面授課",
+        "SO": "1 對 1 DSE 英文線上課",
         "MC": "補堂",
         "PE": "Pending 未付",
         "PA": "Paid 已付",
