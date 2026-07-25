@@ -1,5 +1,5 @@
-pyinstaller --clean tuition_generator.spec
+yes | pyinstaller --clean tuition_generator.spec
 
-cp ./dist/TuitionGenerator ~/.local/bin/
+cp -f ./dist/TuitionGenerator ~/.local/bin/
 
 echo "Built Complete!"
