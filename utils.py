@@ -1,5 +1,6 @@
-import csv, calendar, os, requests, sys
+import csv, calendar, os, requests, sys, time
 from deep_translator import GoogleTranslator
+from deep_translator.exceptions import TooManyRequests, RequestError, TranslationNotFound
 from pathlib import Path
 
 def get_resource_path(relative_path: str) -> str:
@@ -158,15 +159,46 @@ def week_of_month(dt):
     week_number_of_month = target_iso_week - first_day_iso_week + 1
     return week_number_of_month
 
-def translate_to_chinese(text: str) -> str:
-    """Translate English text to Traditional Chinese."""
-    try:
-        result = GoogleTranslator(source="en", target="zh-TW").translate(text)
-        print(result)
-        return result
-    except Exception as e:
-        print(f"Translation error for '{text}': {e}")
-        return "Translation failed"
+def translate_to_chinese(text: str, max_retries: int = 5, base_delay: float = 0.5) -> str:
+    """Translate English text to Traditional Chinese with retry logic.
+    
+    Args:
+        text: Text to translate
+        max_retries: Maximum number of retry attempts (default 3)
+        base_delay: Base delay in seconds between successful translations (default 0.5)
+        
+    Returns:
+        Translated text, or original text if translation fails
+    """
+    last_error = None
+    
+    for attempt in range(max_retries):
+        try:
+            result = GoogleTranslator(source="en", target="zh-TW").translate(text)
+            if attempt < max_retries - 1:
+                time.sleep(base_delay)
+            return result
+        except TooManyRequests:
+            last_error = "Rate limited"
+            if attempt < max_retries - 1:
+                wait_time = 2 ** attempt
+                print(f"Rate limited, retrying in {wait_time}s (attempt {attempt + 1}/{max_retries})")
+                time.sleep(wait_time)
+        except (RequestError, requests.exceptions.RequestException) as e:
+            last_error = f"Network error: {e}"
+            if attempt < max_retries - 1:
+                wait_time = 2 ** attempt
+                print(f"Network error, retrying in {wait_time}s (attempt {attempt + 1}/{max_retries})")
+                time.sleep(wait_time)
+        except TranslationNotFound:
+            print(f"No translation found for '{text}'")
+            return text
+        except Exception as e:
+            print(f"Unexpected translation error for '{text}': {type(e).__name__}: {e}")
+            return text
+    
+    print(f"Translation failed after {max_retries} retries for '{text}': {last_error}")
+    return text 
 
 def create_vocabulary_table(data):
     """Create a table for the PDF from vocabulary data."""
